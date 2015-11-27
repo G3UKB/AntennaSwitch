@@ -174,7 +174,7 @@ Antenna Switch Controller
    
     
     # Callback handler ===============================================================================================
-    def __callback(self, message):
+    def __callback(self, what, message):
         
         """
         Callback for status messages. Note that this is not called
@@ -187,7 +187,7 @@ Antenna Switch Controller
             
         """
         
-        print(message)
+        print(what, message)
         return
     
         try:

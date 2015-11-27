@@ -65,6 +65,8 @@ class HotImageWidget(QtGui.QWidget):
         self.__hotspots = None          # ((x,y,x1,y1), (...), ...)
         self.__current_hotspot = None   # set to hotspot when highlight required
         self.__context_menu = None      # (menu_item, menu_item, ...)
+        self.__no_draw = False          # don't draw on the image
+        self.__ignore_right = True      # ignore the right button
         
         self.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
     
@@ -83,14 +85,8 @@ class HotImageWidget(QtGui.QWidget):
         
         self.__context_menu = QtGui.QMenu()
         for item in menu_items:
-            action_item = self.__context_menu.addAction(item)
-            #self.connect(action_item, QtCore.SIGNAL('triggered()'), self.on_menu_select)
-            self.connect(action_item, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'), self.on_menu_select)
-            
-    def on_menu_select(self):
-        
-        self.__context_menu.hide()
-        self.__callback(EVNT_MENU, ())
+            action = self.__context_menu.addAction(item)
+            action.setData(item)
         
     def draw_switch_position(self, x, y, x1, y1):
         
@@ -112,21 +108,22 @@ class HotImageWidget(QtGui.QWidget):
         # Take the whole allocated area
         qp.drawPixmap(0,0,pix)
         
-        # See if we need to highlight a hotspot
-        if self.__current_hotspot != None:
-            pen = QtGui.QPen(QtGui.QColor(255, 0, 0))
-            pen.setWidth(2)
-            qp.setPen(pen)
-            qp.drawRect(self.__current_hotspot[0] - 3,
-                        self.__current_hotspot[1] - 3,
-                        self.__current_hotspot[2] - self.__current_hotspot[0] + 3,
-                        self.__current_hotspot[3] - self.__current_hotspot[1] + 3)
-            
-        # See if we need to draw a switch position
-        if self.__pos1 != None and self.__pos2 != None:
-            qp.drawLine(self.__pos1[0],self.__pos1[1],self.__pos2[0],self.__pos2[1])
-            self.__pos1 = None
-            self.__pos2 = None
+        if not self.__no_draw:
+            # See if we need to highlight a hotspot
+            if self.__current_hotspot != None:
+                pen = QtGui.QPen(QtGui.QColor(255, 0, 0))
+                pen.setWidth(2)
+                qp.setPen(pen)
+                qp.drawRect(self.__current_hotspot[0] - 3,
+                            self.__current_hotspot[1] - 3,
+                            self.__current_hotspot[2] - self.__current_hotspot[0] + 3,
+                            self.__current_hotspot[3] - self.__current_hotspot[1] + 3)
+                
+            # See if we need to draw a switch position
+            if self.__pos1 != None and self.__pos2 != None:
+                qp.drawLine(self.__pos1[0],self.__pos1[1],self.__pos2[0],self.__pos2[1])
+                self.__pos1 = None
+                self.__pos2 = None
     
     def eventFilter(self, source, event):
         
@@ -134,74 +131,41 @@ class HotImageWidget(QtGui.QWidget):
         if event.type() == QtCore.QEvent.MouseMove:
             if self.__mode == MODE_CONFIG:
                 # Just report the position
-                if event.buttons() == QtCore.Qt.NoButton:
+                if event.button() == QtCore.Qt.NoButton:
                     self.__callback(EVNT_POS, (event.pos().x(), event.pos().y()))
             elif self.__mode == MODE_RUNTIME:
                 # See if we have entered or left a hotspot
-                if self.__hotspots != None:
-                    self.__current_hotspot = None
-                    for hotspot in self.__hotspots:
-                        if  event.pos().x() >= hotspot[0] and\
-                            event.pos().y() >= hotspot[1] and\
-                            event.pos().x() <= hotspot[2] and\
-                            event.pos().y() <= hotspot[3]:
-                            self.__current_hotspot = hotspot
-                    self.repaint()
+                if not self.__no_draw:
+                    if self.__hotspots != None:
+                        self.__current_hotspot = None
+                        for hotspot in self.__hotspots:
+                            if  event.pos().x() >= hotspot[0] and\
+                                event.pos().y() >= hotspot[1] and\
+                                event.pos().x() <= hotspot[2] and\
+                                event.pos().y() <= hotspot[3]:
+                                self.__current_hotspot = hotspot
+                        self.repaint()
         
         # Action on mouse buttons       
         if event.type() == QtCore.QEvent.MouseButtonPress:
-            print('eventFilter ', event.buttons())
             if self.__mode == MODE_CONFIG:
                 # Just report the clicked position, left button only
-                if event.buttons() == QtCore.Qt.LeftButton:
+                if event.button() == QtCore.Qt.LeftButton:
                     self.__callback(EVNT_LEFT, (event.pos().x(), event.pos().y()))
             elif self.__mode == MODE_RUNTIME:
                 # Display the context menu, right button only
-                if event.buttons() == QtCore.Qt.RightButton:
-                    print('event.buttons() ', event.buttons(), QtCore.Qt.RightButton)
-                    #self.__context_menu.exec_(QtGui.QCursor.pos())
-                    self.__context_menu.exec_(self.mapToGlobal(event.pos()))
-            
+                if event.button() == QtCore.Qt.RightButton:
+                    if self.__ignore_right:
+                        self.__ignore_right = False
+                    else:
+                        self.__no_draw = True   # Don't fiddle with highlights etc
+                        my_event = self.__context_menu.exec_(self.mapToGlobal(event.pos()))
+                        if my_event != None:
+                            my_data = my_event.data()
+                            self.__callback(EVNT_MENU, (my_data,))
+                        self.__no_draw = False
+                elif event.button() == QtCore.Qt.LeftButton:
+                    # Ignore next right button
+                    self.__ignore_right = True
+    
         return QtGui.QMainWindow.eventFilter(self, source, event)
-
-# TESTING ============================================================================================    
-class Example(QtGui.QWidget):
-    
-    def __init__(self, app):
-        super(Example, self).__init__()
-        
-        self.__app = app
-        self.initUI()
-        
-    def initUI(self):      
-       
-        
-        grid = QtGui.QGridLayout()
-        
-        self.pix = HotImageWidget('pic.gif', self.callback)
-        grid.addWidget(self.pix, 0,0)
-        self.__app.installEventFilter(self.pix)
-        
-        self.pix.set_mode(MODE_RUNTIME)
-        self.pix.set_hotspots(((10,10,50,50),(100,100,140,140)))
-        self.pix.set_context_menu(('item1','item2','item3'))
-        
-        self.setLayout(grid)
-        
-        self.setGeometry(300, 300, 200, 500)
-        self.setWindowTitle('Test widget')
-        self.show()
-    
-    def callback(self, what, data):
-        
-        print(what, data)
-        
-def main():
-    
-    app = QtGui.QApplication(sys.argv)
-    ex = Example(app)
-    sys.exit(app.exec_())
-
-
-if __name__ == '__main__':
-    main()
