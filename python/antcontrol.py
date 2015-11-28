@@ -34,7 +34,7 @@ from common import *
 """
 Controller API
 """
-class ControllerAPI:
+class AntControl:
     
     def __init__(self, network_params, callback):
         """

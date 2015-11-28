@@ -46,6 +46,8 @@ CONFIG_HOTSPOT_BOTTOMRIGHT = 'confighotspotbottomright'
 CONFIG_HOTSPOT_COMMON = 'confighotspotcommon'
 CONFIG_HOTSPOT_NO = 'confighotspotno'
 CONFIG_HOTSPOT_NC = 'confighotspotnc'
+CONFIG_ACCEPT = 'configaccept'
+CONFIG_REJECT = 'configreject'
 
 # Paths to state and configuration files
 SETTINGS_PATH = os.path.join('..', 'settings', 'ant_control.cfg')

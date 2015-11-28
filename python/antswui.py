@@ -27,6 +27,7 @@
 import os,sys
 import string
 from time import sleep
+import copy
 import traceback
 from PyQt4 import QtCore, QtGui
 
@@ -75,7 +76,7 @@ class AntSwUI(QtGui.QMainWindow):
         
         # Create the graphics object
         # We have a runtime callback here and a configuration callback to the configurator
-        self.__image_widget = graphics.HotImageWidget('pic.gif', self.__graphics_callback, self.__config_dialog.__graphics_callback)
+        self.__image_widget = graphics.HotImageWidget('pic.gif', self.__graphics_callback, self.__config_dialog.graphics_callback)
         
         # Create the controller API
         self.__api = antcontrol.AntControl((), self.__api_callback)
@@ -148,11 +149,11 @@ class AntSwUI(QtGui.QMainWindow):
         # Configure Graphics Widget
         grid.addWidget(self.__image_widget, 0,0)
         self.__qt_app.installEventFilter(self.__image_widget)        
-        self.image_widget.set_mode(MODE_RUNTIME)
+        self.__image_widget.set_mode(MODE_RUNTIME)
         
         # Tempory for testing
-        self.image_widget.set_hotspots(((10,10,50,50),(100,100,140,140)))
-        self.image_widget.set_context_menu(('item1','item2','item3'))
+        self.__image_widget.set_hotspots(((10,10,50,50),(100,100,140,140)))
+        self.__image_widget.set_context_menu(('item1','item2','item3'))
         
         # Configure Quit
         line = QtGui.QFrame()
@@ -222,22 +223,33 @@ Antenna Switch Controller
         """
         
         # Put the graphics into config mode
-        self.image_widget.set_mode(MODE_CONFIG)
+        self.__image_widget.set_mode(MODE_CONFIG)
+        # Create a temporary setting structure
+        self.__temp_settings = copy.deepcopy(self.__settings)
         # Show the dialog. This makes it non-modal
+        print('Show')
         self.__config_dialog.show()
+        print('Done')
                 
     # Main event handlers =============================================================================================
    
     
     # Callback handler ===============================================================================================
     def __config_callback(self, what, data):
+        """
+        Callback from configurator.
+        
+        Arguments:
+            what    --  callback event type
+            data    --  associated data, event specific
+            
+        """
         
         print('__config_callback ', what, data)
         
         if what == CONFIG_NETWORK:
-            self.__settings[ARDUINO_SETTINGS][NETWORK][IP] = data[IP]
-            self.__settings[ARDUINO_SETTINGS][NETWORK][PORT] = data[PORT]
-            self.__api.resetNetworkParams(data[IP], data[PORT])
+            self.__temp_settings[ARDUINO_SETTINGS][NETWORK][IP] = data[IP]
+            self.__temp_settings[ARDUINO_SETTINGS][NETWORK][PORT] = data[PORT]            
         elif what == CONFIG_HOTSPOT_TOPLEFT:
             pass
         elif what == CONFIG_HOTSPOT_BOTTOMRIGHT:
@@ -248,18 +260,32 @@ Antenna Switch Controller
             pass
         elif what == CONFIG_HOTSPOT_NC:
             pass
-        
-        persist.saveCfg(SETTINGS_PATH, self.__settings)
+        elif what == CONFIG_ACCEPT:
+            self.__settings = self.__temp_settings
+            self.__api.resetNetworkParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT])
+            persist.saveCfg(SETTINGS_PATH, self.__settings)
+            self.__image_widget.set_mode(MODE_RUNTIME)
+        elif what == CONFIG_REJECT:
+            # Just forget the changes
+            self.__image_widget.set_mode(MODE_RUNTIME)
 
     def __graphics_callback(self, what, message):
+        """
+        Runtime callback from graphics.
+        
+        Arguments:
+            what    --  callback event type
+            data    --  associated data, event specific
+            
+        """
         
         pass
     
-    def __api_callback(self, what, message):
+    def __api_callback(self, message):
         
         """
-        Callback for status messages. Note that this is not called
-        from the main thread and therefore we just set a status which
+        Callback from API. Note that this is not called from
+        the main thread and therefore we just set a status which
         is picked up in the idle loop for display.
         Qt calls MUST be made from the main thread.
         
@@ -268,7 +294,7 @@ Antenna Switch Controller
             
         """
         
-        print(what, message)
+        print(message)
         return
     
         try:

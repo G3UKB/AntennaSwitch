@@ -43,12 +43,14 @@ Configuration dialog
 """
 class ConfigurationDialog(QtGui.QDialog):
     
-    def __init__(self, settings, parent = None):
+    def __init__(self, settings, config_callback, parent = None):
         """
         Constructor
         
         Arguments:
             settings        --  see common.py DEFAULT_SETTINGS for structure
+            config_callback --  callback with configuration data and state
+            parent          --  parent window
         """
         
         super(ConfigurationDialog, self).__init__(parent)
@@ -57,6 +59,7 @@ class ConfigurationDialog(QtGui.QDialog):
         self.__settings = copy.deepcopy(settings)
         # Retain original settings incase we cancel
         self.__orig_settings = copy.deepcopy(settings)
+        self.__config_callback = config_callback
         
         # Create the UI interface elements
         self.__initUI()
@@ -181,48 +184,38 @@ Set the IP address and port to the listening IP/port of the Arduino.
             QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel,
             QtCore.Qt.Horizontal, self)
         grid.addWidget(self.buttonbox, x, y, cols, rows)
-        self.buttonbox.accepted.connect(self.accept)
-        self.buttonbox.rejected.connect(self.reject)
+        self.buttonbox.accepted.connect(self.__accept)
+        self.buttonbox.rejected.connect(self.__reject)
     
-    # Dialog Management ================================================================================================
-    # A static method which is called to create and execute the dialog
-    # A response constructor
-    @staticmethod
-    def getConfig(settings, parent = None):
+    # Dialog Management
+    #================================================================================================
+    def __accept(self):
+        """ User accepted changes """
+        
+        self.__config_callback(CONFIG_ACCEPT, None)
+        self.hide()
+        
+    def __reject(self):
+        """ User rejected changes """
+        
+        self.__config_callback(CONFIG_REJECT, None)
+        self.hide()
+    
+    # Callback
+    #================================================================================================
+    def graphics_callback(self, what, data):
         """
-        Start a new dialog session
+        Callback from graphics widget
         
         Arguments:
-            settings        --  current settings list
-            parent          --  parent window
-        
+            what    --  event type
+            data    --  event data
         """
         
-        dialog = ConfigurationDialog(settings, parent)
-        result = dialog.exec_()
-        response = dialog.response(result == QtGui.QDialog.Accepted)
-        return response, result == QtGui.QDialog.Accepted
+        print('__graphics_callback ', what, data)  
     
-    def response(self, result):
-        """
-        Construct the response to the dialog call
-        
-        Arguments:
-            result  --  True if user clicked OK
-            
-        """
-        
-        if result:
-            # OK
-            # Return new settings
-            return self.__settings
-        else:
-            # Cancel
-            # Reinstate the original settings
-            self.__settings = self.__orig_settings
-            return self.__orig_settings
-    
-    # Event handlers ================================================================================================== 
+    # Event handlers
+    #================================================================================================
     # Tab event handler
     def onTab(self, tab):
         """
@@ -239,32 +232,13 @@ Set the IP address and port to the listening IP/port of the Arduino.
     def ipChanged(self, ):
         """ User edited IP address """
         
-        self.__settings[ARDUINO_SETTINGS][NETWORK][IP] = self.iptxt.text()
+        self.__config_callback(CONFIG_NETWORK, (self.iptxt.text, self.porttxt.text))
         
     def portChanged(self, ):
         """ User edited port address """
         
-        self.__settings[ARDUINO_SETTINGS][NETWORK][PORT] = self.porttxt.text()
+        self.__config_callback(CONFIG_NETWORK, (self.iptxt.text, self.porttxt.text))
         
-    # Callback handlers ==============================================================================================   
-    def __callback(self, message):
-        
-        """
-        Callback from status messages. Note that this is not called
-        from the main thread and therefore we just set a status which
-        is picked up in the idle loop for display.
-        
-        Arguments:
-            message --  text to drive the status messages
-            
-        """
-        
-        if 'success' in message:
-            pass
-        elif 'failure' in message:
-            # Error, so reset
-            _, reason = message.split(':')
-    
                     
     # Idle time processing ============================================================================================        
     def __idleProcessing(self):
