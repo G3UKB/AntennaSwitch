@@ -31,11 +31,25 @@ import os,sys
 # ======================================================================================
 # SETTINGS and STATE
 
+# Constants for settings
+ARDUINO_SETTINGS = 'arduinosettings'
+NETWORK = 'network'
+
+# Index into comms parameters
+IP = 0
+PORT = 1
+
 # Paths to state and configuration files
 SETTINGS_PATH = os.path.join('..', 'settings', 'ant_control.cfg')
 STATE_PATH = os.path.join('..', 'settings', 'ant_state.cfg')
 
 DEFAULT_SETTINGS = {
+    ARDUINO_SETTINGS: {
+        NETWORK: [
+            # ip, port
+            None, None
+        ]
+    },
 }
 
 DEFAULT_STATE = {

@@ -97,20 +97,69 @@ class AntSwUI(QtGui.QMainWindow):
     def initUI(self):
         """ Configure the GUI interface """
         
-        #grid = QtGui.QGridLayout()
+        self.setToolTip('Antenna Switch Controller')
+        self.statusBar().setStyleSheet("QStatusBar {color: rgb(255,128,64);font: bold 12px}")
+        self.statusBar().showMessage('')
+        QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
         
-        self.pix = graphics.HotImageWidget('pic.gif', self.__callback)
-        #grid.addWidget(self.pix, 0,0)
-        self.__qt_app.installEventFilter(self.pix)
+        # Arrange window
+        self.move(100, 100)
+        self.setWindowTitle('Antenna Switch')
         
-        self.pix.set_mode(MODE_RUNTIME)
-        self.pix.set_hotspots(((10,10,50,50),(100,100,140,140)))
-        self.pix.set_context_menu(('item1','item2','item3'))
+        aboutAction = QtGui.QAction(QtGui.QIcon('about.png'), '&About', self)        
+        aboutAction.setShortcut('Ctrl+A')
+        aboutAction.setStatusTip('About')
+        aboutAction.triggered.connect(self.about)
+        exitAction = QtGui.QAction(QtGui.QIcon('exit.png'), '&Exit', self)        
+        exitAction.setShortcut('Ctrl+Q')
+        exitAction.setStatusTip('Quit application')
+        exitAction.triggered.connect(self.quit)
+        configAction = QtGui.QAction(QtGui.QIcon('config.png'), '&Configuration', self)        
+        configAction.setShortcut('Ctrl+C')
+        configAction.setStatusTip('Configure controller')
+        configAction.triggered.connect(self.__configEvnt)
         
-        self.setCentralWidget(self.pix)
+        menubar = self.menuBar()
+        fileMenu = menubar.addMenu('&File')
+        fileMenu.addAction(exitAction)
+        configMenu = menubar.addMenu('&Edit')
+        configMenu.addAction(configAction)
+        helpMenu = menubar.addMenu('&Help')
+        helpMenu.addAction(aboutAction)
         
-        self.setGeometry(300, 300, 200, 500)
-        self.setWindowTitle('Test widget')
+        w = QtGui.QWidget()
+        self.setCentralWidget(w)
+        grid = QtGui.QGridLayout()
+        w.setLayout(grid)
+
+        self.image_widget = graphics.HotImageWidget('pic.gif', self.__callback)
+        grid.addWidget(self.image_widget, 0,0)
+        self.__qt_app.installEventFilter(self.image_widget)
+        
+        self.image_widget.set_mode(MODE_RUNTIME)
+        self.image_widget.set_hotspots(((10,10,50,50),(100,100,140,140)))
+        self.image_widget.set_context_menu(('item1','item2','item3'))
+        
+        # Configure Quit
+        line = QtGui.QFrame()
+        line.setFrameShape(QtGui.QFrame.HLine)
+        line.setFrameShadow(QtGui.QFrame.Sunken)
+        line.setStyleSheet("QFrame {background-color: rgb(126,126,126)}")
+        grid.addWidget(line, 1, 0)
+        self.quitbtn = QtGui.QPushButton('Quit', self)
+        self.quitbtn.setToolTip('Quit program')
+        self.quitbtn.resize(self.quitbtn.sizeHint())
+        self.quitbtn.setMinimumHeight(20)
+        self.quitbtn.setEnabled(True)
+        grid.addWidget(self.quitbtn, 2, 0)
+        self.quitbtn.clicked.connect(self.quit)
+        
+        w.setLayout(grid)
+        
+        #self.setCentralWidget(self.pix)
+        
+        #self.setGeometry(300, 300, 200, 500)
+        #self.setWindowTitle('Test widget')
         self.show()
     
     def about(self):

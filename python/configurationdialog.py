@@ -65,7 +65,7 @@ class ConfigurationDialog(QtGui.QDialog):
         # Note that we have our own API instance to use here. As we use UDP there
         # are no connections to worry about and the dialog is modal so no fiddling
         # with the main UI which could cause a conflict.
-        self.__api = magcontrol.ControllerAPI(self.__settings[ARDUINO_SETTINGS][NETWORK], self.__callback)
+        #self.__api = antcontrol.ControllerAPI(self.__settings[ARDUINO_SETTINGS][NETWORK], self.__callback)
         
         # Class vars
         
@@ -188,19 +188,17 @@ Set the IP address and port to the listening IP/port of the Arduino.
     # A static method which is called to create and execute the dialog
     # A response constructor
     @staticmethod
-    def getConfig(cat_inst, settings, current_loop = None, parent = None):
+    def getConfig(settings, parent = None):
         """
         Start a new dialog session
         
         Arguments:
-            cat_inst        --  CAT class instance
             settings        --  current settings list
-            current-loop    --  selected loop
             parent          --  parent window
         
         """
         
-        dialog = ConfigurationDialog(cat_inst, settings, current_loop, parent)
+        dialog = ConfigurationDialog(settings, parent)
         result = dialog.exec_()
         response = dialog.response(result == QtGui.QDialog.Accepted)
         return response, result == QtGui.QDialog.Accepted
