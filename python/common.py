@@ -39,6 +39,14 @@ NETWORK = 'network'
 IP = 0
 PORT = 1
 
+# Config events
+CONFIG_NETWORK = 'confignetwork'
+CONFIG_HOTSPOT_TOPLEFT = 'confighotspottopleft'
+CONFIG_HOTSPOT_BOTTOMRIGHT = 'confighotspotbottomright'
+CONFIG_HOTSPOT_COMMON = 'confighotspotcommon'
+CONFIG_HOTSPOT_NO = 'confighotspotno'
+CONFIG_HOTSPOT_NC = 'confighotspotnc'
+
 # Paths to state and configuration files
 SETTINGS_PATH = os.path.join('..', 'settings', 'ant_control.cfg')
 STATE_PATH = os.path.join('..', 'settings', 'ant_state.cfg')

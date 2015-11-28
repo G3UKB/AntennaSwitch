@@ -51,13 +51,14 @@ from common import *
 
 class HotImageWidget(QtGui.QWidget):
     
-    def __init__(self, image_path, callback):      
+    def __init__(self, image_path, runtime_callback, config_callback):      
         super(HotImageWidget, self).__init__()
         
         # Params
         self.__image_path = image_path
-        self.__callback = callback
-        
+        self.__runtime_callback = runtime_callback
+        self.__config_callback = config_callback      
+
         # Class vars
         self.__mode = MODE_UNDEFINED    # config or runtime
         self.__pos1 = None              # switch position start
@@ -132,7 +133,7 @@ class HotImageWidget(QtGui.QWidget):
             if self.__mode == MODE_CONFIG:
                 # Just report the position
                 if event.button() == QtCore.Qt.NoButton:
-                    self.__callback(EVNT_POS, (event.pos().x(), event.pos().y()))
+                    self.__config_callback(EVNT_POS, (event.pos().x(), event.pos().y()))
             elif self.__mode == MODE_RUNTIME:
                 # See if we have entered or left a hotspot
                 if not self.__no_draw:
@@ -151,7 +152,7 @@ class HotImageWidget(QtGui.QWidget):
             if self.__mode == MODE_CONFIG:
                 # Just report the clicked position, left button only
                 if event.button() == QtCore.Qt.LeftButton:
-                    self.__callback(EVNT_LEFT, (event.pos().x(), event.pos().y()))
+                    self.__config_callback(EVNT_LEFT, (event.pos().x(), event.pos().y()))
             elif self.__mode == MODE_RUNTIME:
                 # Display the context menu, right button only
                 if event.button() == QtCore.Qt.RightButton:
@@ -162,7 +163,7 @@ class HotImageWidget(QtGui.QWidget):
                         my_event = self.__context_menu.exec_(self.mapToGlobal(event.pos()))
                         if my_event != None:
                             my_data = my_event.data()
-                            self.__callback(EVNT_MENU, (my_data,))
+                            self.__runtime_callback(EVNT_MENU, (my_data,))
                         self.__no_draw = False
                 elif event.button() == QtCore.Qt.LeftButton:
                     # Ignore next right button

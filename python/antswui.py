@@ -34,6 +34,7 @@ from PyQt4 import QtCore, QtGui
 from common import *
 import graphics
 import configurationdialog
+import antcontrol
 import persist
 
 """
@@ -68,7 +69,17 @@ class AntSwUI(QtGui.QMainWindow):
         if self.__settings == None: self.__settings = DEFAULT_SETTINGS
         self.__state = persist.getSavedCfg(STATE_PATH)
         if self.__state == None: self.__state = DEFAULT_STATE
-                
+        
+        # Create the configuration dialog
+        self.__config_dialog = configurationdialog.ConfigurationDialog(self.__settings, self.__config_callback)
+        
+        # Create the graphics object
+        # We have a runtime callback here and a configuration callback to the configurator
+        self.__image_widget = graphics.HotImageWidget('pic.gif', self.__graphics_callback, self.__config_dialog.__graphics_callback)
+        
+        # Create the controller API
+        self.__api = antcontrol.AntControl((), self.__api_callback)
+        
         # Initialise the GUI
         self.initUI()
         
@@ -106,6 +117,7 @@ class AntSwUI(QtGui.QMainWindow):
         self.move(100, 100)
         self.setWindowTitle('Antenna Switch')
         
+        # Configure Menu
         aboutAction = QtGui.QAction(QtGui.QIcon('about.png'), '&About', self)        
         aboutAction.setShortcut('Ctrl+A')
         aboutAction.setStatusTip('About')
@@ -127,16 +139,18 @@ class AntSwUI(QtGui.QMainWindow):
         helpMenu = menubar.addMenu('&Help')
         helpMenu.addAction(aboutAction)
         
+        # Set layout
         w = QtGui.QWidget()
         self.setCentralWidget(w)
         grid = QtGui.QGridLayout()
         w.setLayout(grid)
 
-        self.image_widget = graphics.HotImageWidget('pic.gif', self.__callback)
-        grid.addWidget(self.image_widget, 0,0)
-        self.__qt_app.installEventFilter(self.image_widget)
-        
+        # Configure Graphics Widget
+        grid.addWidget(self.__image_widget, 0,0)
+        self.__qt_app.installEventFilter(self.__image_widget)        
         self.image_widget.set_mode(MODE_RUNTIME)
+        
+        # Tempory for testing
         self.image_widget.set_hotspots(((10,10,50,50),(100,100,140,140)))
         self.image_widget.set_context_menu(('item1','item2','item3'))
         
@@ -154,12 +168,9 @@ class AntSwUI(QtGui.QMainWindow):
         grid.addWidget(self.quitbtn, 2, 0)
         self.quitbtn.clicked.connect(self.quit)
         
-        w.setLayout(grid)
-        
-        #self.setCentralWidget(self.pix)
-        
-        #self.setGeometry(300, 300, 200, 500)
-        #self.setWindowTitle('Test widget')
+        # Finish up
+        w.setLayout(grid)        
+        self.setGeometry(300, 300, 200, 500)        
         self.show()
     
     def about(self):
@@ -202,28 +213,49 @@ Antenna Switch Controller
     
     def __configEvnt(self, event):
         """
-        Run the configurator
+        Run the configurator.
+        This is run non-modal as we need to be able to configure hot spots on the main window.
         
         Arguments:
             event   -- ui event object
             
         """
         
-        self.__settings, r = configurationdialog.ConfigurationDialog.getConfig(self.__settings)
-        # If Ok save the new config and update internally
-        if r:
-            # Settings
-            persist.saveCfg(SETTINGS_PATH, self.__settings)
-            # Network settings
-            self.__api.resetNetworkParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT])
-            # Adjust state
-       
+        # Put the graphics into config mode
+        self.image_widget.set_mode(MODE_CONFIG)
+        # Show the dialog. This makes it non-modal
+        self.__config_dialog.show()
                 
     # Main event handlers =============================================================================================
    
     
     # Callback handler ===============================================================================================
-    def __callback(self, what, message):
+    def __config_callback(self, what, data):
+        
+        print('__config_callback ', what, data)
+        
+        if what == CONFIG_NETWORK:
+            self.__settings[ARDUINO_SETTINGS][NETWORK][IP] = data[IP]
+            self.__settings[ARDUINO_SETTINGS][NETWORK][PORT] = data[PORT]
+            self.__api.resetNetworkParams(data[IP], data[PORT])
+        elif what == CONFIG_HOTSPOT_TOPLEFT:
+            pass
+        elif what == CONFIG_HOTSPOT_BOTTOMRIGHT:
+            pass
+        elif what == CONFIG_HOTSPOT_COMMON:
+            pass
+        elif what == CONFIG_HOTSPOT_NO:
+            pass
+        elif what == CONFIG_HOTSPOT_NC:
+            pass
+        
+        persist.saveCfg(SETTINGS_PATH, self.__settings)
+
+    def __graphics_callback(self, what, message):
+        
+        pass
+    
+    def __api_callback(self, what, message):
         
         """
         Callback for status messages. Note that this is not called
