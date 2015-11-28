@@ -227,9 +227,7 @@ Antenna Switch Controller
         # Create a temporary setting structure
         self.__temp_settings = copy.deepcopy(self.__settings)
         # Show the dialog. This makes it non-modal
-        print('Show')
         self.__config_dialog.show()
-        print('Done')
                 
     # Main event handlers =============================================================================================
    
@@ -244,8 +242,6 @@ Antenna Switch Controller
             data    --  associated data, event specific
             
         """
-        
-        print('__config_callback ', what, data)
         
         if what == CONFIG_NETWORK:
             self.__temp_settings[ARDUINO_SETTINGS][NETWORK][IP] = data[IP]

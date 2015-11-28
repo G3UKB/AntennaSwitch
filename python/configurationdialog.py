@@ -108,6 +108,11 @@ class ConfigurationDialog(QtGui.QDialog):
         
         # Add common buttons
         self.__populateCommon(top_layout, 1, 0, 1, 1)
+        
+        self.__status_bar = QtGui.QStatusBar()
+        top_layout.addWidget(self.__status_bar, 2,0)
+        self.__status_bar.setStyleSheet("QStatusBar {color: rgb(255,128,64);font: bold 12px}")
+        self.__status_bar.showMessage('')
  
     def __populateArduino(self, grid):
         """
@@ -181,7 +186,7 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         """
         instlabel.setText(instructions)
         instlabel.setStyleSheet("QLabel {color: rgb(0,64,128); font: 11px}")
-        grid.addWidget(instlabel, 0, 1, 1, 3)
+        grid.addWidget(instlabel, 0, 1, 1, 2)
         
         # Relay select
         relaylabel = QtGui.QLabel('Relays')
@@ -189,7 +194,7 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         self.relaycombo = QtGui.QComboBox()
         for key in sorted(self.__settings[RELAY_SETTINGS].keys()):
             self.relaycombo.addItem(str(key))
-        grid.addWidget(self.relaycombo, 1, 1, 1, 2)
+        grid.addWidget(self.relaycombo, 1, 1)
         self.relaycombo.activated.connect(self.__onRelay)
         
         # Relay ID
@@ -310,7 +315,7 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
             data    --  event data
         """
         
-        print('__graphics_callback ', what, data)  
+        self.__status_bar.showMessage('x:%d, y:%d' % (data[0], data[1])) 
     
     # Event handlers
     #================================================================================================
