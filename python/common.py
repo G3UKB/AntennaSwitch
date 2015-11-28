@@ -41,6 +41,7 @@ PORT = 1
 
 # Config events
 CONFIG_NETWORK = 'confignetwork'
+RELAY_SETTINGS = 'relaysettings'
 CONFIG_HOTSPOT_TOPLEFT = 'confighotspottopleft'
 CONFIG_HOTSPOT_BOTTOMRIGHT = 'confighotspotbottomright'
 CONFIG_HOTSPOT_COMMON = 'confighotspotcommon'
@@ -60,6 +61,10 @@ DEFAULT_SETTINGS = {
             None, None
         ]
     },
+    RELAY_SETTINGS: {
+        # Relay 0-N
+        #{relay-id: {CONFIG_HOTSPOT_TOPLEFT: (x,y), CONFIG_HOTSPOT_BOTTOMRIGHT: (x,y), CONFIG_HOTSPOT_COMMON: (x,y), CONFIG_HOTSPOT_NO: (x,y), CONFIG_HOTSPOT_NC: (x,y)]}, relay-id: {...}, ...}
+    }
 }
 
 DEFAULT_STATE = {

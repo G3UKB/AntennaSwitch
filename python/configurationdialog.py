@@ -64,12 +64,6 @@ class ConfigurationDialog(QtGui.QDialog):
         # Create the UI interface elements
         self.__initUI()
         
-        # Create the API
-        # Note that we have our own API instance to use here. As we use UDP there
-        # are no connections to worry about and the dialog is modal so no fiddling
-        # with the main UI which could cause a conflict.
-        #self.__api = antcontrol.ControllerAPI(self.__settings[ARDUINO_SETTINGS][NETWORK], self.__callback)
-        
         # Class vars
         
         # Start the idle timer
@@ -89,12 +83,10 @@ class ConfigurationDialog(QtGui.QDialog):
         # Set up the tabs
         self.top_tab_widget = QtGui.QTabWidget()
         arduinotab = QtGui.QWidget()
-        looptab = QtGui.QWidget()
-        sertpointtab = QtGui.QWidget()
-        cattab = QtGui.QWidget()
+        hotspottab = QtGui.QWidget()
         
         self.top_tab_widget.addTab(arduinotab, "Arduino")
-        self.top_tab_widget.addTab(looptab, "Hotspots")
+        self.top_tab_widget.addTab(hotspottab, "Hotspots")
         self.top_tab_widget.currentChanged.connect(self.onTab)        
         
         # Add the top layout to the dialog
@@ -104,10 +96,15 @@ class ConfigurationDialog(QtGui.QDialog):
 
         # Set layouts for top tab
         arduinogrid = QtGui.QGridLayout()
-        arduinotab.setLayout(arduinogrid)        
+        arduinotab.setLayout(arduinogrid)
+        hotspotgrid = QtGui.QGridLayout()
+        hotspottab.setLayout(hotspotgrid)  
         
         # Add the arduino layout to the dialog
         self.__populateArduino(arduinogrid)
+        
+        # Add the hotspot to the dialog
+        self.__populateHotspots(hotspotgrid)
         
         # Add common buttons
         self.__populateCommon(top_layout, 1, 0, 1, 1)
@@ -164,7 +161,108 @@ Set the IP address and port to the listening IP/port of the Arduino.
         grid.addWidget(nulllabel1, 0, 2)
         grid.setRowStretch(3, 1)
         grid.setColumnStretch(2, 1)
+    
+    def __populateHotspots(self, grid):
+        """
+        Populate the Hotspots tab
         
+        Arguments
+            grid    --  grid to populate
+            
+        """
+        
+        # Add instructions
+        usagelabel = QtGui.QLabel('Usage:')
+        usagelabel.setStyleSheet("QLabel {color: rgb(0,64,128); font: 11px}")
+        grid.addWidget(usagelabel, 0, 0)
+        instlabel = QtGui.QLabel()
+        instructions = """
+Configure switch area hot spot and the Common/NO/NC switch contacts.
+        """
+        instlabel.setText(instructions)
+        instlabel.setStyleSheet("QLabel {color: rgb(0,64,128); font: 11px}")
+        grid.addWidget(instlabel, 0, 1, 1, 3)
+        
+        # Relay select
+        relaylabel = QtGui.QLabel('Relays')
+        grid.addWidget(relaylabel, 1, 0)
+        self.relaycombo = QtGui.QComboBox()
+        for key in sorted(self.__settings[RELAY_SETTINGS].keys()):
+            self.relaycombo.addItem(str(key))
+        grid.addWidget(self.relaycombo, 1, 1, 1, 2)
+        self.relaycombo.activated.connect(self.__onRelay)
+        
+        # Relay ID
+        idlabel = QtGui.QLabel('Relay ID')
+        grid.addWidget(idlabel, 2, 0)
+        self.idsb = QtGui.QSpinBox(self)
+        self.idsb.setRange(1, 8)
+        self.idsb.setValue(1)
+        grid.addWidget(self.idsb, 2, 1)
+        
+        # Radio buttons to select the current field for edit
+        self.rbgroup = QtGui.QButtonGroup()
+        self.toplrb = QtGui.QRadioButton('Top Left')
+        self.botrrb = QtGui.QRadioButton('Bottom Right')
+        self.commrb = QtGui.QRadioButton('Common')
+        self.norb = QtGui.QRadioButton('Normally Open')
+        self.ncrb = QtGui.QRadioButton('Normally Closed')
+        self.rbgroup.addButton(self.toplrb)
+        self.rbgroup.addButton(self.botrrb)
+        self.rbgroup.addButton(self.commrb)
+        self.rbgroup.addButton(self.norb)
+        self.rbgroup.addButton(self.ncrb)
+        grid.addWidget(self.toplrb, 3, 0)
+        grid.addWidget(self.botrrb, 4, 0)
+        grid.addWidget(self.commrb, 5, 0)
+        grid.addWidget(self.norb, 6, 0)
+        grid.addWidget(self.ncrb, 7, 0)
+        
+        # Field values
+        toplxlabel = QtGui.QLabel('')
+        grid.addWidget(toplxlabel, 3, 1)
+        toplylabel = QtGui.QLabel('')
+        grid.addWidget(toplylabel, 3, 2)
+        
+        botrxlabel = QtGui.QLabel('')
+        grid.addWidget(botrxlabel, 4, 1)
+        botrylabel = QtGui.QLabel('')
+        grid.addWidget(botrylabel, 4, 2)
+        
+        commxlabel = QtGui.QLabel('')
+        grid.addWidget(commxlabel, 5, 1)
+        commylabel = QtGui.QLabel('')
+        grid.addWidget(commylabel, 5, 2)
+        
+        noxlabel = QtGui.QLabel('')
+        grid.addWidget(noxlabel, 6, 1)
+        noylabel = QtGui.QLabel('')
+        grid.addWidget(noylabel, 6, 2)
+        
+        ncxlabel = QtGui.QLabel('')
+        grid.addWidget(ncxlabel, 7, 1)
+        ncylabel = QtGui.QLabel('')
+        grid.addWidget(ncylabel, 7, 2)
+                
+        # Actions, add/edit, delete
+        self.addbtn = QtGui.QPushButton('Edit/Add', self)
+        self.addbtn.setToolTip('Edit/Add to list')
+        self.addbtn.resize(self.addbtn.sizeHint())
+        self.addbtn.setMinimumHeight(20)
+        self.addbtn.setMinimumWidth(100)
+        self.addbtn.setEnabled(True)
+        grid.addWidget(self.addbtn, 8, 1)
+        self.addbtn.clicked.connect(self.__editadd)
+        
+        self.delbtn = QtGui.QPushButton('Delete', self)
+        self.delbtn.setToolTip('Delete from list')
+        self.delbtn.resize(self.addbtn.sizeHint())
+        self.delbtn.setMinimumHeight(20)
+        self.delbtn.setMinimumWidth(100)
+        self.delbtn.setEnabled(True)
+        grid.addWidget(self.delbtn, 8, 2)
+        self.delbtn.clicked.connect(self.__delete)       
+            
     def __populateCommon(self, grid, x, y, cols, rows):
     
         """
@@ -239,7 +337,22 @@ Set the IP address and port to the listening IP/port of the Arduino.
         
         self.__config_callback(CONFIG_NETWORK, (self.iptxt.text, self.porttxt.text))
         
-                    
+    # Relay event handlers
+    def __onRelay(self, ):
+        """ User selected a new relay """
+        
+        pass
+    
+    def __editadd(self, ):
+        """ User wants to add/edit the current contents """
+        
+        pass
+    
+    def __delete(self, ):
+        """ User wants to delete the selected relay and data """
+        
+        pass
+    
     # Idle time processing ============================================================================================        
     def __idleProcessing(self):
         
