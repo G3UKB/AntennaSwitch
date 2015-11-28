@@ -69,7 +69,10 @@ class HotImageWidget(QtGui.QWidget):
         self.__no_draw = False          # don't draw on the image
         self.__ignore_right = True      # ignore the right button
         
+        # Install the filter
         self.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
+        self.installEventFilter(self)
+        self.setMouseTracking(True)
     
     def set_mode(self, mode):
         

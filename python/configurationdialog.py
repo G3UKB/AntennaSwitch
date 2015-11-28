@@ -224,30 +224,20 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         grid.addWidget(self.ncrb, 7, 0)
         
         # Field values
-        toplxlabel = QtGui.QLabel('')
-        grid.addWidget(toplxlabel, 3, 1)
-        toplylabel = QtGui.QLabel('')
-        grid.addWidget(toplylabel, 3, 2)
+        self.__topllabel = QtGui.QLabel('')
+        grid.addWidget(self.__topllabel, 3, 1)
         
-        botrxlabel = QtGui.QLabel('')
-        grid.addWidget(botrxlabel, 4, 1)
-        botrylabel = QtGui.QLabel('')
-        grid.addWidget(botrylabel, 4, 2)
+        self.__botrlabel = QtGui.QLabel('')
+        grid.addWidget(self.__botrlabel, 4, 1)
         
-        commxlabel = QtGui.QLabel('')
-        grid.addWidget(commxlabel, 5, 1)
-        commylabel = QtGui.QLabel('')
-        grid.addWidget(commylabel, 5, 2)
+        self.__commlabel = QtGui.QLabel('')
+        grid.addWidget(self.__commlabel, 5, 1)
         
-        noxlabel = QtGui.QLabel('')
-        grid.addWidget(noxlabel, 6, 1)
-        noylabel = QtGui.QLabel('')
-        grid.addWidget(noylabel, 6, 2)
+        self.__nolabel = QtGui.QLabel('')
+        grid.addWidget(self.__nolabel, 6, 1)
         
-        ncxlabel = QtGui.QLabel('')
-        grid.addWidget(ncxlabel, 7, 1)
-        ncylabel = QtGui.QLabel('')
-        grid.addWidget(ncylabel, 7, 2)
+        self.__nclabel = QtGui.QLabel('')
+        grid.addWidget(self.__nclabel, 7, 1)
                 
         # Actions, add/edit, delete
         self.addbtn = QtGui.QPushButton('Edit/Add', self)
@@ -315,7 +305,26 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
             data    --  event data
         """
         
-        self.__status_bar.showMessage('x:%d, y:%d' % (data[0], data[1])) 
+        if what == EVNT_POS:
+            # Report cursor position
+            self.__status_bar.showMessage('x:%d, y:%d' % (data[0], data[1]))
+        elif what == EVNT_LEFT:
+            # Some marker point
+            if self.toplrb.isChecked():
+                self.__config_callback(CONFIG_HOTSPOT_TOPLEFT, (data[0], data[1]))
+                self.__topllabel.setText('x:%d y:%d' % (data[0], data[1]))
+            elif self.botrrb.isChecked():
+                self.__config_callback(CONFIG_HOTSPOT_BOTTOMRIGHT, (data[0], data[1]))
+                self.__botrlabel.setText('x:%d y:%d' % (data[0], data[1]))
+            elif self.commrb.isChecked():
+                self.__config_callback(CONFIG_HOTSPOT_COMMON, (data[0], data[1]))
+                self.__commlabel.setText('x:%d y:%d' % (data[0], data[1]))
+            elif self.norb.isChecked():
+                self.__config_callback(CONFIG_HOTSPOT_NO, (data[0], data[1]))
+                self.__nolabel.setText('x:%d y:%d' % (data[0], data[1]))
+            elif self.ncrb.isChecked():
+                self.__config_callback(CONFIG_HOTSPOT_NC, (data[0], data[1]))
+                self.__nclabel.setText('x:%d y:%d' % (data[0], data[1]))
     
     # Event handlers
     #================================================================================================

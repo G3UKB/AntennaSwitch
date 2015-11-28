@@ -148,7 +148,6 @@ class AntSwUI(QtGui.QMainWindow):
 
         # Configure Graphics Widget
         grid.addWidget(self.__image_widget, 0,0)
-        self.__qt_app.installEventFilter(self.__image_widget)        
         self.__image_widget.set_mode(MODE_RUNTIME)
         
         # Tempory for testing
