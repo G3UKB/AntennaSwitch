@@ -77,7 +77,7 @@ class AntSwUI(QtGui.QMainWindow):
         
         # Create the graphics object
         # We have a runtime callback here and a configuration callback to the configurator
-        self.__image_widget = graphics.HotImageWidget(self.__state[PATHS][IMAGE], self.__graphics_callback, self.__config_dialog.graphics_callback)
+        self.__image_widget = graphics.HotImageWidget(self.__settings[PATHS][IMAGE], self.__graphics_callback, self.__config_dialog.graphics_callback)
         
         # Create the controller API
         self.__api = antcontrol.AntControl((), self.__api_callback)
@@ -148,7 +148,6 @@ class AntSwUI(QtGui.QMainWindow):
         
         # Set the startup state
         self.__image_widget.config(self.__settings[RELAY_SETTINGS], self.__state[RELAYS])
-        self.__image_widget.set_context_menu(('item1','item2','item3'))
         
         # Configure Quit
         line = QtGui.QFrame()

@@ -43,9 +43,7 @@ from common import *
     4.  Caller provides drop-down list selection.
 3.  Set runtime mode.
     1.  On entering a hot spot put red border around area.
-    2.  On right mouse button click within a hotspot display the menu.
-    3.  Callback with menu selection.
-    4.  Draw switch position between given coordinates.
+    2.  On left click change switch position.
 
 """
 
@@ -85,14 +83,12 @@ class HotImageWidget(QtGui.QWidget):
         # }
         self.__hotspots = None
         self.__current_hotspot = None       # set to hotspot when highlight required
-        self.__context_menu = None          # (menu_item, menu_item, ...)
         self.__no_draw = False              # don't draw on the image
         self.__ignore_right = True          # ignore the right button
         self.__draw_switch_ids = []         # switch id drawing params
-        self.__draw_switch_positions = []   # switch position drawing params
+        self.__draw_switch_positions = {}   # switch position drawing params
         
         # Install the filter
-        self.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         self.installEventFilter(self)
         self.setMouseTracking(True)
 
@@ -122,7 +118,7 @@ class HotImageWidget(QtGui.QWidget):
         """
         
         self.__hotspots = hotspot_list
-        self.relay_state = relay_state
+        self.__relay_state = relay_state
         # Now we have some hotspots we can draw the switch ID and its NC contact
         if self.__hotspots != None:
             for id, hotspot in self.__hotspots.items():
@@ -130,28 +126,14 @@ class HotImageWidget(QtGui.QWidget):
                 centre_x = hotspot[CONFIG_HOTSPOT_TOPLEFT][X] + (hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][X] - hotspot[CONFIG_HOTSPOT_TOPLEFT][X])/2
                 centre_y = hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] + (hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][Y] - hotspot[CONFIG_HOTSPOT_TOPLEFT][Y])/2
                 self.__draw_switch_ids.append((centre_x, centre_y, id))
-                # Draw the contact state
+                # Draw the contact state 
                 contact_state = relay_state[id]
                 if contact_state == RELAY_OFF:
-                    self.__draw_switch_positions.append(((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NC][X], hotspot[CONFIG_HOTSPOT_NC][Y])))
+                    self.__draw_switch_positions[id] = (((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NC][X], hotspot[CONFIG_HOTSPOT_NC][Y])))
                 else:
-                    self.__draw_switch_positions.append(((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NO][X], hotspot[CONFIG_HOTSPOT_NO][Y])))
+                    self.__draw_switch_positions[id] = (((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NO][X], hotspot[CONFIG_HOTSPOT_NO][Y])))
                 # Force a repaint
                 self.repaint()               
-    
-    def set_context_menu(self, menu_items):
-        """
-        Set the right click memu when over a hotspot
-        
-        Arguments:
-            menu_items    --  list of item strings
-            
-        """
-
-        self.__context_menu = QtGui.QMenu()
-        for item in menu_items:
-            action = self.__context_menu.addAction(item)
-            action.setData(item)
 
 # Private Interface
 #==========================================================================================
@@ -186,29 +168,22 @@ class HotImageWidget(QtGui.QWidget):
         # Take the whole allocated area
         qp.drawPixmap(0,0,pix)
         
-        if not self.__no_draw:
-            # See if we need to draw id's
-            for id in self.__draw_switch_ids:
-                qp.drawText(id[0],id[1],str(id[2]))
-            # See if we need to draw switch positions           
-            for position in self.__draw_switch_positions:
-                qp.drawLine(position[0][0], position[0][1], position[1][0], position[1][1])               
-            # See if we need to highlight a hotspot
-            if self.__current_hotspot != None:
-                pen = QtGui.QPen(QtGui.QColor(255, 0, 0))
-                pen.setWidth(2)
-                qp.setPen(pen)
-                qp.drawRect(self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][X] - 3,
-                            self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] - 3,
-                            self.__current_hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][X] - self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][X] + 3,
-                            self.__current_hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][Y] - self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] + 3)
-                
-            # See if we need to draw a switch position
-            #if self.__pos1 != None and self.__pos2 != None:
-            #    qp.drawLine(self.__pos1[0],self.__pos1[1],self.__pos2[0],self.__pos2[1])
-            #    self.__pos1 = None
-            #    self.__pos2 = None
-    
+        # See if we need to draw id's
+        for id in self.__draw_switch_ids:
+            qp.drawText(id[0],id[1],str(id[2]))
+        # See if we need to draw switch positions           
+        for id, position in self.__draw_switch_positions.items():
+            qp.drawLine(position[0][0], position[0][1], position[1][0], position[1][1])               
+        # See if we need to highlight a hotspot
+        if self.__current_hotspot != None:
+            pen = QtGui.QPen(QtGui.QColor(255, 0, 0))
+            pen.setWidth(2)
+            qp.setPen(pen)
+            qp.drawRect(self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][X] - 3,
+                        self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] - 3,
+                        self.__current_hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][X] - self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][X] + 3,
+                        self.__current_hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][Y] - self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] + 3)
+
     def eventFilter(self, source, event):
         """
         Custom filter for mouse events over the bitmap
@@ -230,12 +205,9 @@ class HotImageWidget(QtGui.QWidget):
                 if not self.__no_draw:
                     if self.__hotspots != None:
                         self.__current_hotspot = None
-                        for id, hotspot in self.__hotspots.items():
-                            if  event.pos().x() >= hotspot[CONFIG_HOTSPOT_TOPLEFT][X] and\
-                                event.pos().y() >= hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] and\
-                                event.pos().x() <= hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][X] and\
-                                event.pos().y() <= hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][Y]:
-                                self.__current_hotspot = hotspot
+                        id, hotspot = self.__locate(event.pos())
+                        if id != -1:
+                            self.__current_hotspot = hotspot
                         self.repaint()
         
         # Action on mouse buttons       
@@ -245,26 +217,24 @@ class HotImageWidget(QtGui.QWidget):
                 if event.button() == QtCore.Qt.LeftButton:
                     self.__config_callback(EVNT_LEFT, (event.pos().x(), event.pos().y()))
             elif self.__mode == MODE_RUNTIME:
-                # Display the context menu, right button only
-                if event.button() == QtCore.Qt.RightButton:
-                    if self.__ignore_right:
-                        self.__ignore_right = False
-                    else:
-                        self.__no_draw = True   # Don't fiddle with highlights etc
-                        my_event = self.__context_menu.exec_(self.mapToGlobal(event.pos()))
-                        if my_event != None:
-                            my_data = my_event.data()
-                            self.__runtime_callback(EVNT_MENU, (my_data,))
-                        self.__no_draw = False
-                elif event.button() == QtCore.Qt.LeftButton:
-                    # Ignore next right button
-                    self.__ignore_right = True
-    
+                if event.button() == QtCore.Qt.LeftButton:
+                    # Switch the relay state
+                    id, hotspot = self.__locate(event.pos())
+                    if id != -1:
+                        if self.__relay_state[id] == RELAY_OFF: self.__relay_state[id] = RELAY_ON
+                        else: self.__relay_state[id] = RELAY_OFF
+                        contact_state = self.__relay_state[id]
+                        if contact_state == RELAY_OFF:
+                            self.__draw_switch_positions[id] = (((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NC][X], hotspot[CONFIG_HOTSPOT_NC][Y])))
+                        else:
+                            self.__draw_switch_positions[id] = (((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NO][X], hotspot[CONFIG_HOTSPOT_NO][Y])))
+                        self.repaint()
+                        
         return QtGui.QMainWindow.eventFilter(self, source, event)
 
 # Helpers
 #==========================================================================================
-def __draw_switch_id(self, x, y, label):
+    def __locate(self, pos):
         """
         Draw the switch ID
         
@@ -272,23 +242,15 @@ def __draw_switch_id(self, x, y, label):
             x       --  top left X
             y       --  top left Y
             label   --  text to write
+                
+        """
             
-        """
-        
-        self.repaint()
-
-def __draw_switch_position(self, x, y, x1, y1):
-        """
-        Draw the switch position, NO or NC
-        
-        Arguments:
-            x   --  top left X
-            y   --  top left Y
-            x1  --  bottom right X
-            y1  --  bottom right Y
-            
-        """
-        
-        self.__pos1 = (x,y)
-        self.__pos2 = (x1,y1)
-        self.repaint()
+        for id, hotspot in self.__hotspots.items():
+            if  pos.x() >= hotspot[CONFIG_HOTSPOT_TOPLEFT][X] and\
+                pos.y() >= hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] and\
+                pos.x() <= hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][X] and\
+                pos.y() <= hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][Y]:
+                
+                return id, hotspot
+        return -1, None
+                                
