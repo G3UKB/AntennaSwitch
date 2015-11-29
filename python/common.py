@@ -32,16 +32,24 @@ import os,sys
 # SETTINGS and STATE
 
 # Constants for settings
+PATHS = 'paths'
+IMAGE = 'image'
 ARDUINO_SETTINGS = 'arduinosettings'
 NETWORK = 'network'
+WINDOW = 'window'
+RELAYS = 'relays'
+RELAY_OFF = 'relayoff'
+RELAY_ON = 'relayon'
 
 # Index into comms parameters
 IP = 0
 PORT = 1
 
-# Index into coordinates
+# Index into coordinates & window
 X = 0
 Y = 1
+W = 2
+H = 3
 
 # Config events
 CONFIG_NETWORK = 'confignetwork'
@@ -61,6 +69,9 @@ SETTINGS_PATH = os.path.join('..', 'settings', 'ant_control.cfg')
 STATE_PATH = os.path.join('..', 'settings', 'ant_state.cfg')
 
 DEFAULT_SETTINGS = {
+    PATHS: {
+        IMAGE: 'default.gif'
+    },
     ARDUINO_SETTINGS: {
         NETWORK: [
             # ip, port
@@ -74,6 +85,18 @@ DEFAULT_SETTINGS = {
 }
 
 DEFAULT_STATE = {
+            # X, Y, W, H
+    WINDOW: [300, 300, 300, 500],
+    RELAYS: {
+                1: RELAY_OFF,
+                2: RELAY_OFF,
+                3: RELAY_OFF,
+                4: RELAY_OFF,
+                5: RELAY_OFF,
+                6: RELAY_OFF,
+                7: RELAY_OFF,
+                8: RELAY_OFF,
+            }
 }
 
 # ======================================================================================

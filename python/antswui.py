@@ -77,7 +77,7 @@ class AntSwUI(QtGui.QMainWindow):
         
         # Create the graphics object
         # We have a runtime callback here and a configuration callback to the configurator
-        self.__image_widget = graphics.HotImageWidget('pic.gif', self.__graphics_callback, self.__config_dialog.graphics_callback)
+        self.__image_widget = graphics.HotImageWidget(self.__state[PATHS][IMAGE], self.__graphics_callback, self.__config_dialog.graphics_callback)
         
         # Create the controller API
         self.__api = antcontrol.AntControl((), self.__api_callback)
@@ -99,12 +99,7 @@ class AntSwUI(QtGui.QMainWindow):
         """ Run the application """
         
         # Returns when application exists
-        r = self.__qt_app.exec_()
-        
-        # Terminate threads
-        
-        
-        return r
+        return self.__qt_app.exec_()
            
     # UI initialisation and window event handlers =====================================================================
     def initUI(self):
@@ -151,8 +146,8 @@ class AntSwUI(QtGui.QMainWindow):
         grid.addWidget(self.__image_widget, 0,0)
         self.__image_widget.set_mode(MODE_RUNTIME)
         
-        # Temporary for testing
-        self.__image_widget.set_hotspots(self.__settings[RELAY_SETTINGS])
+        # Set the startup state
+        self.__image_widget.config(self.__settings[RELAY_SETTINGS], self.__state[RELAYS])
         self.__image_widget.set_context_menu(('item1','item2','item3'))
         
         # Configure Quit
@@ -171,7 +166,7 @@ class AntSwUI(QtGui.QMainWindow):
         
         # Finish up
         w.setLayout(grid)        
-        self.setGeometry(300, 300, 200, 500)        
+        self.setGeometry(self.__state[WINDOW][X], self.__state[WINDOW][Y], self.__state[WINDOW][W], self.__state[WINDOW][H])        
         self.show()
     
     def about(self):
@@ -190,6 +185,7 @@ Antenna Switch Controller
         
         # Save the current settings
         persist.saveCfg(SETTINGS_PATH, self.__settings)
+        self.__state[WINDOW] = (self.x(), self.y(), self.width(), self.height())
         persist.saveCfg(STATE_PATH, self.__state)
         # Close
         QtCore.QCoreApplication.instance().quit()
