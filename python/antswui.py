@@ -150,7 +150,7 @@ class AntSwUI(QtGui.QMainWindow):
         grid.addWidget(self.__image_widget, 0,0)
         self.__image_widget.set_mode(MODE_RUNTIME)
         
-        # Tempory for testing
+        # Temporary for testing
         self.__image_widget.set_hotspots(((10,10,50,50),(100,100,140,140)))
         self.__image_widget.set_context_menu(('item1','item2','item3'))
         
@@ -245,16 +245,10 @@ Antenna Switch Controller
         if what == CONFIG_NETWORK:
             self.__temp_settings[ARDUINO_SETTINGS][NETWORK][IP] = data[IP]
             self.__temp_settings[ARDUINO_SETTINGS][NETWORK][PORT] = data[PORT]            
-        elif what == CONFIG_HOTSPOT_TOPLEFT:
-            pass
-        elif what == CONFIG_HOTSPOT_BOTTOMRIGHT:
-            pass
-        elif what == CONFIG_HOTSPOT_COMMON:
-            pass
-        elif what == CONFIG_HOTSPOT_NO:
-            pass
-        elif what == CONFIG_HOTSPOT_NC:
-            pass
+        elif what == CONFIG_EDIT_ADD_HOTSPOT:
+            print('Add')
+        elif what == CONFIG_DELETE_HOTSPOT:
+            print('Delete')
         elif what == CONFIG_ACCEPT:
             self.__settings = self.__temp_settings
             self.__api.resetNetworkParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT])
