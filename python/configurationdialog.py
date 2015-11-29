@@ -58,11 +58,11 @@ class ConfigurationDialog(QtGui.QDialog):
         self.__settings = settings
         self.__config_callback = config_callback
         
+        # Class vars
+        self.__relay_settings = copy.deepcopy(self.__settings[RELAY_SETTINGS])
+        
         # Create the UI interface elements
         self.__initUI()
-        
-        # Class vars
-        self.__hotspot = copy.deepcopy(self.__settings[RELAY_SETTINGS])
                 
         # Start the idle timer
         QtCore.QTimer.singleShot(100, self.__idleProcessing)
@@ -224,16 +224,32 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         
         # Field values
         self.__topllabel = QtGui.QLabel('')
+        self.__topllabel.setFrameShape(QtGui.QFrame.Box)
+        self.__topllabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
         grid.addWidget(self.__topllabel, 3, 1)        
         self.__botrlabel = QtGui.QLabel('')
+        self.__botrlabel.setFrameShape(QtGui.QFrame.Box)
+        self.__botrlabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
         grid.addWidget(self.__botrlabel, 4, 1)        
         self.__commlabel = QtGui.QLabel('')
+        self.__commlabel.setFrameShape(QtGui.QFrame.Box)
+        self.__commlabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
         grid.addWidget(self.__commlabel, 5, 1)       
         self.__nolabel = QtGui.QLabel('')
+        self.__nolabel.setFrameShape(QtGui.QFrame.Box)
+        self.__nolabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
         grid.addWidget(self.__nolabel, 6, 1)        
         self.__nclabel = QtGui.QLabel('')
+        self.__nclabel.setFrameShape(QtGui.QFrame.Box)
+        self.__nclabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
         grid.addWidget(self.__nclabel, 7, 1)
-                
+        
+        # Populate the coordinates
+        if self.relaycombo.currentIndex() != -1:
+            id = int(self.relaycombo.itemText(self.relaycombo.currentIndex()))
+            coords = self.__relay_settings[id]
+            self.__set_coordinates(coords)
+        
         # Actions, add/edit, delete
         self.addbtn = QtGui.QPushButton('Edit/Add', self)
         self.addbtn.setToolTip('Edit/Add to list')
@@ -305,23 +321,21 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
             self.__status_bar.showMessage('x:%d, y:%d' % (data[0], data[1]))
         elif what == EVNT_LEFT:
             # Some marker point
-            if self.idsb.value() not in self.__hotspot:
-                self.__hotspot[self.idsb.value()] = {}
+            if self.idsb.value() not in self.__relay_settings:
+                self.__relay_settings[self.idsb.value()] = {}
             if self.toplrb.isChecked():
-                self.__topllabel.setText('x:%d y:%d' % (data[0], data[1]))
-                self.__hotspot[self.idsb.value()][CONFIG_HOTSPOT_TOPLEFT] = (data[0], data[1])
+                self.__relay_settings[self.idsb.value()][CONFIG_HOTSPOT_TOPLEFT] = (data[0], data[1])
             elif self.botrrb.isChecked():
-                self.__botrlabel.setText('x:%d y:%d' % (data[0], data[1]))
-                self.__hotspot[self.idsb.value()][CONFIG_HOTSPOT_BOTTOMRIGHT] = (data[0], data[1])
+                self.__relay_settings[self.idsb.value()][CONFIG_HOTSPOT_BOTTOMRIGHT] = (data[0], data[1])
             elif self.commrb.isChecked():
-                self.__commlabel.setText('x:%d y:%d' % (data[0], data[1]))
-                self.__hotspot[self.idsb.value()][CONFIG_HOTSPOT_COMMON] = (data[0], data[1])
+                self.__relay_settings[self.idsb.value()][CONFIG_HOTSPOT_COMMON] = (data[0], data[1])
             elif self.norb.isChecked():
-                self.__nolabel.setText('x:%d y:%d' % (data[0], data[1]))
-                self.__hotspot[self.idsb.value()][CONFIG_HOTSPOT_NO] = (data[0], data[1])
+                self.__relay_settings[self.idsb.value()][CONFIG_HOTSPOT_NO] = (data[0], data[1])
             elif self.ncrb.isChecked():
-                self.__nclabel.setText('x:%d y:%d' % (data[0], data[1]))
-                self.__hotspot[self.idsb.value()][CONFIG_HOTSPOT_NC] = (data[0], data[1])
+                self.__relay_settings[self.idsb.value()][CONFIG_HOTSPOT_NC] = (data[0], data[1])
+            # Set user text
+            coords = self.__relay_settings[self.idsb.value()]
+            self.__set_coordinates(coords)
     
     # Event handlers
     #================================================================================================
@@ -357,14 +371,10 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         # Set the ID
         self.idsb.setValue(id)
         # Populate the coordinates
-        coords = self.__hotspot[id]
-        self.__topllabel.setText('x:%d y:%d' % (coords[CONFIG_HOTSPOT_TOPLEFT][0], coords[CONFIG_HOTSPOT_TOPLEFT][1]))
-        self.__botrlabel.setText('x:%d y:%d' % (coords[CONFIG_HOTSPOT_BOTTOMRIGHT][0], coords[CONFIG_HOTSPOT_BOTTOMRIGHT][1]))
-        self.__commlabel.setText('x:%d y:%d' % (coords[CONFIG_HOTSPOT_COMMON][0], coords[CONFIG_HOTSPOT_COMMON][1]))
-        self.__nolabel.setText('x:%d y:%d' % (coords[CONFIG_HOTSPOT_NO][0], coords[CONFIG_HOTSPOT_NO][1]))
-        self.__nclabel.setText('x:%d y:%d' % (coords[CONFIG_HOTSPOT_NC][0], coords[CONFIG_HOTSPOT_NC][1]))
+        coords = self.__relay_settings[id]
+        self.__set_coordinates(coords)
         # Create/edit temporary structure
-        self.__hotspot[id] = {
+        self.__relay_settings[id] = {
             CONFIG_HOTSPOT_TOPLEFT: (coords[CONFIG_HOTSPOT_TOPLEFT][0], coords[CONFIG_HOTSPOT_TOPLEFT][1]),
             CONFIG_HOTSPOT_BOTTOMRIGHT: (coords[CONFIG_HOTSPOT_BOTTOMRIGHT][0], coords[CONFIG_HOTSPOT_BOTTOMRIGHT][1]),
             CONFIG_HOTSPOT_COMMON: (coords[CONFIG_HOTSPOT_COMMON][0], coords[CONFIG_HOTSPOT_COMMON][1]),
@@ -376,7 +386,9 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         """ User selected a new relay """
         
         # Populate the details
-        relay_id_selected = int(self.relaycombo.itemText(self.relaycombo.currentIndex()))
+        relay_id_selected = -1
+        if self.relaycombo.currentIndex() != -1:
+            relay_id_selected = int(self.relaycombo.itemText(self.relaycombo.currentIndex()))
         new_relay_id = self.idsb.value()
         if relay_id_selected != new_relay_id:
             # Does this id exist in the configured relays
@@ -384,6 +396,8 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
             if index != -1:
                 # Yes, so just select it
                 self.relaycombo.setCurrentIndex(index)
+                coords = self.__relay_settings[new_relay_id]
+                self.__set_coordinates(coords)
             else:
                 # No, so user wants to configure a new relay
                 self.relaycombo.setCurrentIndex(-1)
@@ -392,7 +406,7 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
                 self.__commlabel.setText('')
                 self.__nolabel.setText('')
                 self.__nclabel.setText('')
-                self.__hotspot[new_relay_id] = {
+                self.__relay_settings[new_relay_id] = {
                     CONFIG_HOTSPOT_TOPLEFT: (None, None),
                     CONFIG_HOTSPOT_BOTTOMRIGHT: (None, None),
                     CONFIG_HOTSPOT_COMMON: (None, None),
@@ -407,12 +421,12 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         if index == -1:
             self.relaycombo.addItem(str(self.idsb.value()))
         self.relaycombo.setCurrentIndex(self.relaycombo.findText(str(self.idsb.value())))
-        self.__config_callback(CONFIG_EDIT_ADD_HOTSPOT, self.__hotspot[self.idsb.value()])
+        self.__config_callback(CONFIG_EDIT_ADD_HOTSPOT, self.__relay_settings)
     
     def __delete(self, ):
         """ User wants to delete the selected relay and data """
         
-        del self.__hotspot[self.idsb.value()]
+        del self.__relay_settings[self.idsb.value()]
         self.relaycombo.removeItem(self.relaycombo.currentIndex())
         self.relaycombo.setCurrentIndex(-1)
         self.__topllabel.setText('')
@@ -420,7 +434,7 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         self.__commlabel.setText('')
         self.__nolabel.setText('')
         self.__nclabel.setText('')
-        self.__config_callback(CONFIG_DEL_HOTSPOT, self.idsb.value())
+        self.__config_callback(CONFIG_DELETE_HOTSPOT, self.__relay_settings)
 
     # Idle time processing ============================================================================================        
     def __idleProcessing(self):
@@ -432,20 +446,36 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         """
     
         # Adjust buttons
-        if  len(self.__topllabel.text()) > 0 and
-            len(self.__botrlabel.text()) > 0 and
-            len(self.__commlabel.text()) > 0 and
-            len(self.__nolabel.text()) > 0 and
+        if  len(self.__topllabel.text()) > 0 and\
+            len(self.__botrlabel.text()) > 0 and\
+            len(self.__commlabel.text()) > 0 and\
+            len(self.__nolabel.text()) > 0 and\
             len(self.__nclabel.text()) > 0:
             self.addbtn.setEnabled(True)
         else:
             self.addbtn.setEnabled(False)
             
         if self.relaycombo.currentIndex() != -1:
-            self.deletebtn.setEnabled(True)
+            self.delbtn.setEnabled(True)
         else:
-            self.deletebtn.setEnabled(False)
+            self.delbtn.setEnabled(False)
         
-    
+        QtCore.QTimer.singleShot(100, self.__idleProcessing)
+        
     # Helpers =========================================================================================================
+    
+    def __set_coordinates(self, coords):
+        """
+        Set the user information coordinate data
+        
+        Arguments:
+            coords --  current relay_settings element
+            
+        """
+        
+        self.__topllabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_TOPLEFT][0], coords[CONFIG_HOTSPOT_TOPLEFT][1]))
+        self.__botrlabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_BOTTOMRIGHT][0], coords[CONFIG_HOTSPOT_BOTTOMRIGHT][1]))
+        self.__commlabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_COMMON][0], coords[CONFIG_HOTSPOT_COMMON][1]))
+        self.__nolabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_NO][0], coords[CONFIG_HOTSPOT_NO][1]))
+        self.__nclabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_NC][0], coords[CONFIG_HOTSPOT_NC][1]))
     

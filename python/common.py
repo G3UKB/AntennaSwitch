@@ -39,6 +39,10 @@ NETWORK = 'network'
 IP = 0
 PORT = 1
 
+# Index into coordinates
+X = 0
+Y = 1
+
 # Config events
 CONFIG_NETWORK = 'confignetwork'
 RELAY_SETTINGS = 'relaysettings'
@@ -65,7 +69,7 @@ DEFAULT_SETTINGS = {
     },
     RELAY_SETTINGS: {
         # Relay 0-N
-        #{relay-id: {CONFIG_HOTSPOT_TOPLEFT: (x,y), CONFIG_HOTSPOT_BOTTOMRIGHT: (x,y), CONFIG_HOTSPOT_COMMON: (x,y), CONFIG_HOTSPOT_NO: (x,y), CONFIG_HOTSPOT_NC: (x,y)]}, relay-id: {...}, ...}
+        #relay-id: {CONFIG_HOTSPOT_TOPLEFT: (x,y), CONFIG_HOTSPOT_BOTTOMRIGHT: (x,y), CONFIG_HOTSPOT_COMMON: (x,y), CONFIG_HOTSPOT_NO: (x,y), CONFIG_HOTSPOT_NC: (x,y)}, relay-id: {...}, ...
     }
 }
 

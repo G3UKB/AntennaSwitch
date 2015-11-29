@@ -64,6 +64,7 @@ class AntSwUI(QtGui.QMainWindow):
         # Class variables
         self.__lastStatus = ''
         self.__statusMessage = ''
+        self.__temp_settings = None
         
         # Retrieve settings and state ( see common.py DEFAULTS for strcture)
         self.__settings = persist.getSavedCfg(SETTINGS_PATH)
@@ -151,7 +152,7 @@ class AntSwUI(QtGui.QMainWindow):
         self.__image_widget.set_mode(MODE_RUNTIME)
         
         # Temporary for testing
-        self.__image_widget.set_hotspots(((10,10,50,50),(100,100,140,140)))
+        self.__image_widget.set_hotspots(self.__settings[RELAY_SETTINGS])
         self.__image_widget.set_context_menu(('item1','item2','item3'))
         
         # Configure Quit
@@ -246,12 +247,14 @@ Antenna Switch Controller
             self.__temp_settings[ARDUINO_SETTINGS][NETWORK][IP] = data[IP]
             self.__temp_settings[ARDUINO_SETTINGS][NETWORK][PORT] = data[PORT]            
         elif what == CONFIG_EDIT_ADD_HOTSPOT:
-            print('Add')
+            self.__temp_settings[RELAY_SETTINGS] = data
         elif what == CONFIG_DELETE_HOTSPOT:
-            print('Delete')
+            self.__temp_settings[RELAY_SETTINGS] = data
         elif what == CONFIG_ACCEPT:
-            self.__settings = self.__temp_settings
-            self.__api.resetNetworkParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT])
+            self.__settings = copy.deepcopy(self.__temp_settings)
+            self.__temp_settings = None
+            if self.__settings[ARDUINO_SETTINGS][NETWORK][IP] != None and self.__settings[ARDUINO_SETTINGS][NETWORK][PORT] != None:
+                self.__api.resetNetworkParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT])
             persist.saveCfg(SETTINGS_PATH, self.__settings)
             self.__image_widget.set_mode(MODE_RUNTIME)
         elif what == CONFIG_REJECT:
