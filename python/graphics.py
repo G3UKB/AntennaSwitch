@@ -181,8 +181,8 @@ class HotImageWidget(QtGui.QWidget):
             qp.setPen(pen)
             qp.drawRect(self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][X] - 3,
                         self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] - 3,
-                        self.__current_hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][X] - self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][X] + 3,
-                        self.__current_hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][Y] - self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] + 3)
+                        self.__current_hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][X] - self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][X] + 6,
+                        self.__current_hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][Y] - self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] + 6)
 
     def eventFilter(self, source, event):
         """
