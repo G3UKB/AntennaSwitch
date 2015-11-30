@@ -73,7 +73,7 @@ STATE_PATH = os.path.join('..', 'settings', 'ant_state.cfg')
 
 DEFAULT_SETTINGS = {
     PATHS: {
-        IMAGE: 'default.gif'
+        IMAGE: 'default.png'
     },
     ARDUINO_SETTINGS: {
         NETWORK: [
