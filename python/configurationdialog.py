@@ -473,9 +473,14 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
             
         """
         
-        self.__topllabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_TOPLEFT][0], coords[CONFIG_HOTSPOT_TOPLEFT][1]))
-        self.__botrlabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_BOTTOMRIGHT][0], coords[CONFIG_HOTSPOT_BOTTOMRIGHT][1]))
-        self.__commlabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_COMMON][0], coords[CONFIG_HOTSPOT_COMMON][1]))
-        self.__nolabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_NO][0], coords[CONFIG_HOTSPOT_NO][1]))
-        self.__nclabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_NC][0], coords[CONFIG_HOTSPOT_NC][1]))
+        if CONFIG_HOTSPOT_TOPLEFT in coords:
+            self.__topllabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_TOPLEFT][0], coords[CONFIG_HOTSPOT_TOPLEFT][1]))
+        if CONFIG_HOTSPOT_BOTTOMRIGHT in coords:
+            self.__botrlabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_BOTTOMRIGHT][0], coords[CONFIG_HOTSPOT_BOTTOMRIGHT][1]))
+        if CONFIG_HOTSPOT_COMMON in coords:
+            self.__commlabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_COMMON][0], coords[CONFIG_HOTSPOT_COMMON][1]))
+        if CONFIG_HOTSPOT_NO in coords:
+            self.__nolabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_NO][0], coords[CONFIG_HOTSPOT_NO][1]))
+        if CONFIG_HOTSPOT_NC in coords:
+            self.__nclabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_NC][0], coords[CONFIG_HOTSPOT_NC][1]))
     
