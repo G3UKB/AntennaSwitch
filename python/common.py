@@ -64,6 +64,9 @@ CONFIG_DELETE_HOTSPOT = 'configdeletehotspot'
 CONFIG_ACCEPT = 'configaccept'
 CONFIG_REJECT = 'configreject'
 
+# Runtime events
+RUNTIME_RELAY_UPDATE = 'runtimereplayupdate'
+
 # Paths to state and configuration files
 SETTINGS_PATH = os.path.join('..', 'settings', 'ant_control.cfg')
 STATE_PATH = os.path.join('..', 'settings', 'ant_state.cfg')

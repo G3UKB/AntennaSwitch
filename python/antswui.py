@@ -80,7 +80,7 @@ class AntSwUI(QtGui.QMainWindow):
         self.__image_widget = graphics.HotImageWidget(self.__settings[PATHS][IMAGE], self.__graphics_callback, self.__config_dialog.graphics_callback)
         
         # Create the controller API
-        self.__api = antcontrol.AntControl((), self.__api_callback)
+        self.__api = antcontrol.AntControl(self.__settings[ARDUINO_SETTINGS][NETWORK], self.__api_callback)
         
         # Initialise the GUI
         self.initUI()
@@ -255,8 +255,9 @@ Antenna Switch Controller
         elif what == CONFIG_REJECT:
             # Just forget the changes
             self.__image_widget.set_mode(MODE_RUNTIME)
+            self.__temp_settings = None
 
-    def __graphics_callback(self, what, message):
+    def __graphics_callback(self, what, data):
         """
         Runtime callback from graphics.
         
@@ -266,7 +267,8 @@ Antenna Switch Controller
             
         """
         
-        pass
+        if what == RUNTIME_RELAY_UPDATE:
+            self.__api.set_relay(data[0], data[1])
     
     def __api_callback(self, message):
         
@@ -281,9 +283,6 @@ Antenna Switch Controller
             
         """
         
-        print(message)
-        return
-    
         try:
             if 'success' in message:
                 # Completed, so reset
@@ -324,15 +323,22 @@ Antenna Switch Controller
             self.__startup = False
             # Initialise state if required
             
+            # Check startup conditions
+            if self.__settings[ARDUINO_SETTINGS][NETWORK][IP] == None:
+                # We have no Arduino settings so user must configure first
+                QtGui.QMessageBox.information(self, 'Configuration Required', 'Please configure the Arduino network settings.', QtGui.QMessageBox.Ok)
+            if len(self.__settings[RELAY_SETTINGS]) == 0:
+                # We have no settings so user must configure first
+                QtGui.QMessageBox.information(self, 'Configuration Required', 'Please configure the hotspot settings.', QtGui.QMessageBox.Ok)
+            
             # Make sure the status gets cleared
             self.__tickcount = 50
         else:
             # Runtime ====================================================
             # Button state
             
-            # Progress bar and status messages
-            
-            pass
+            # Status bar
+            self.statusBar().showMessage(self.__statusMessage)
             
         # Set next idle time    
         QtCore.QTimer.singleShot(IDLE_TICKER, self.__idleProcessing)

@@ -34,7 +34,7 @@ from common import *
 """
 Controller API
 """
-class AntControl:
+class AntControl :
     
     def __init__(self, network_params, callback):
         """
@@ -79,7 +79,14 @@ class AntControl:
     # API =============================================================================================================
     def set_relay(self, relay_id, switch_to):
         
-        print('set_relay ', relay_id, switch_to)
+        if not self.__ready:
+            self.__callback('failure: no network params!')
+            return
+        if switch_to == RELAY_ON:
+            self.__send(str(relay_id) + 'on')
+        else:
+            self.__send(str(relay_id) + 'off')
+        self.__doReceive()
     
     # Helpers =========================================================================================================    
     def __send(self, command):
@@ -98,20 +105,20 @@ class AntControl:
 # also allow the UI to continue to display status changes.
 def receive(sock, callback):
         
-        try:
-            callback('Communicating with controller...')
-            sock.settimeout(5)
-            while(1):
-                data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-                asciidata = data.decode(encoding='UTF-8')
-                callback(asciidata)
-                if 'success' in asciidata or 'failure' in asciidata :
-                    # All done so exit thread
-                    break
-        except socket.timeout:
-            # Server didn't respond
-            callback('failure: timeout on read!')
-        except Exception as e:
-            # Something went wrong
-            callback('failure: {0}'.format(e))
+    try:
+        callback('Communicating with controller...')
+        sock.settimeout(5)
+        while(1):
+            data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
+            asciidata = data.decode(encoding='UTF-8')
+            callback(asciidata)
+            if 'success' in asciidata or 'failure' in asciidata :
+                # All done so exit thread
+                break
+    except socket.timeout:
+        # Server didn't respond
+        callback('failure: timeout on read!')
+    except Exception as e:
+        # Something went wrong
+        callback('failure: {0}'.format(e))
         
