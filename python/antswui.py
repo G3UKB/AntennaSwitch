@@ -251,7 +251,9 @@ Antenna Switch Controller
             if self.__settings[ARDUINO_SETTINGS][NETWORK][IP] != None and self.__settings[ARDUINO_SETTINGS][NETWORK][PORT] != None:
                 self.__api.resetNetworkParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT])
             persist.saveCfg(SETTINGS_PATH, self.__settings)
+            # Back into runtime with the new settings
             self.__image_widget.set_mode(MODE_RUNTIME)
+            self.__image_widget.config(self.__settings[RELAY_SETTINGS], self.__state[RELAYS])
         elif what == CONFIG_REJECT:
             # Just forget the changes
             self.__image_widget.set_mode(MODE_RUNTIME)

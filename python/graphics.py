@@ -85,7 +85,6 @@ class HotImageWidget(QtGui.QWidget):
         self.__current_hotspot = None       # set to hotspot when highlight required
         self.__no_draw = False              # don't draw on the image
         self.__ignore_right = True          # ignore the right button
-        self.__draw_switch_ids = []         # switch id drawing params
         self.__draw_switch_positions = {}   # switch position drawing params
         
         # Install the filter
@@ -122,10 +121,6 @@ class HotImageWidget(QtGui.QWidget):
         # Now we have some hotspots we can draw the switch ID and its NC contact
         if self.__hotspots != None:
             for id, hotspot in self.__hotspots.items():
-                # Draw the ID in the centre of the switch
-                centre_x = hotspot[CONFIG_HOTSPOT_TOPLEFT][X] + (hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][X] - hotspot[CONFIG_HOTSPOT_TOPLEFT][X])/2
-                centre_y = hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] + (hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][Y] - hotspot[CONFIG_HOTSPOT_TOPLEFT][Y])/2
-                self.__draw_switch_ids.append((centre_x, centre_y, id))
                 # Draw the contact state 
                 contact_state = relay_state[id]
                 if contact_state == RELAY_OFF:
@@ -168,11 +163,11 @@ class HotImageWidget(QtGui.QWidget):
         # Take the whole allocated area
         qp.drawPixmap(0,0,pix)
         
-        # See if we need to draw id's
-        for id in self.__draw_switch_ids:
-            qp.drawText(id[0],id[1],str(id[2]))
         # See if we need to draw switch positions           
         for id, position in self.__draw_switch_positions.items():
+            pen = QtGui.QPen(QtGui.QColor(255, 0, 0))
+            pen.setWidth(2)
+            qp.setPen(pen)
             qp.drawLine(position[0][0], position[0][1], position[1][0], position[1][1])               
         # See if we need to highlight a hotspot
         if self.__current_hotspot != None:
