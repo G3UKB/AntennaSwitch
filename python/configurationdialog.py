@@ -355,12 +355,12 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
     def ipChanged(self, ):
         """ User edited IP address """
         
-        self.__config_callback(CONFIG_NETWORK, (self.iptxt.text, self.porttxt.text))
+        self.__config_callback(CONFIG_NETWORK, (self.iptxt.text(), self.porttxt.text()))
         
     def portChanged(self, ):
         """ User edited port address """
         
-        self.__config_callback(CONFIG_NETWORK, (self.iptxt.text, self.porttxt.text))
+        self.__config_callback(CONFIG_NETWORK, (self.iptxt.text(), self.porttxt.text()))
         
     # Relay event handlers
     def __on_relay(self, ):

@@ -83,9 +83,9 @@ class AntControl :
             self.__callback('failure: no network params!')
             return
         if switch_to == RELAY_ON:
-            self.__send(str(relay_id) + 'on')
+            self.__send(str(relay_id) + 'e')
         else:
-            self.__send(str(relay_id) + 'off')
+            self.__send(str(relay_id) + 'd')
         self.__doReceive()
     
     # Helpers =========================================================================================================    

@@ -18,7 +18,8 @@
 
 // Specify MAC and IP address:
 byte mac[] = {
-  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
+  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xEF
+  //0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
 IPAddress ip(192, 168, 1, 177);
 // Local port to listen on
@@ -35,6 +36,7 @@ EthernetUDP Udp;
 //////////////////////////////////////////////////////////////////////////
 // Relay section
 // Pin allocation
+const int relay_base = 1;
 const int relay_1 = 2;
 const int relay_2 = 3;
 const int relay_3 = 4;
@@ -92,8 +94,9 @@ void loop() {
 int queryPacket() {
   
   int packetSize = Udp.parsePacket();
-  if (packetSize)
+  if (packetSize) {
     return packetSize;
+  }
    else
      return 0;
 }
@@ -189,13 +192,13 @@ void reset_relays() {
 //////////////////////////////////////////////////////////////////////////
 void energise_relay(int relay_id) {
   
-  digitalWrite(relay_id, LOW);
+  digitalWrite(relay_id + relay_base, LOW);
 }
 
 //////////////////////////////////////////////////////////////////////////
 void de_energise_relay(int relay_id) {
   
-  digitalWrite(relay_id, HIGH);
+  digitalWrite(relay_id + relay_base, HIGH);
 }
   
 
