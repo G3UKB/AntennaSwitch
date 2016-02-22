@@ -83,10 +83,10 @@ class ConfigurationDialog(QtGui.QDialog):
         # Set up the tabs
         self.top_tab_widget = QtGui.QTabWidget()
         arduinotab = QtGui.QWidget()
-        hotspottab = QtGui.QWidget()
+        relaytab = QtGui.QWidget()
         
         self.top_tab_widget.addTab(arduinotab, "Arduino")
-        self.top_tab_widget.addTab(hotspottab, "Relays")
+        self.top_tab_widget.addTab(relaytab, "Relays")
         self.top_tab_widget.currentChanged.connect(self.onTab)        
         
         # Add the top layout to the dialog
@@ -189,27 +189,28 @@ Configure template and switch area hot spot and the Common/NO/NC switch contacts
         grid.addWidget(instlabel, 0, 1, 1, 2)
         
         # Template select/add
-        relaylabel = QtGui.QLabel('Templates')
+        templatelabel = QtGui.QLabel('Templates')
         grid.addWidget(templatelabel, 1, 0)
         self.templatecombo = QtGui.QComboBox()
-        for key in sorted(self.__settings[RELAY_SETTINGS].keys()):
-            self.templatecombo.addItem(str(key))
+        self.__templates = sorted(self.__settings[RELAY_SETTINGS].keys())
+        for template in self.__templates:
+            self.templatecombo.addItem(str(template))
         grid.addWidget(self.templatecombo, 1, 1)
         self.templatecombo.activated.connect(self.__on_template)
         self.addtemplatebtn = QtGui.QPushButton('Add', self)
         self.addtemplatebtn.setToolTip('Add a new template')
-        self.addtemplatebtn.resize(self.addbtn.sizeHint())
+        self.addtemplatebtn.resize(self.addtemplatebtn .sizeHint())
         self.addtemplatebtn.setMinimumHeight(20)
         self.addtemplatebtn.setMinimumWidth(100)
         self.addtemplatebtn.setEnabled(True)
         grid.addWidget(self.addtemplatebtn, 1, 2)
-        self.addtemplatebtn.clicked.connect(self.__addtemplate)        
+        self.addtemplatebtn.clicked.connect(self.__add_template)        
         
         # Relay select
         relaylabel = QtGui.QLabel('Relays')
         grid.addWidget(relaylabel, 2, 0)
         self.relaycombo = QtGui.QComboBox()
-        for key in sorted(self.__settings[RELAY_SETTINGS].keys()):
+        for key in sorted(self.__settings[RELAY_SETTINGS][self.__templates[0]].keys()):
             self.relaycombo.addItem(str(key))
         grid.addWidget(self.relaycombo, 2, 1)
         self.relaycombo.activated.connect(self.__on_relay)
@@ -356,6 +357,13 @@ Configure template and switch area hot spot and the Common/NO/NC switch contacts
             coords = self.__relay_settings[self.idsb.value()]
             self.__set_coordinates(coords)
     
+    # PUBLIC
+    #================================================================================================
+    def get_template(self, ):
+        """ Return the template in use """
+        
+        return self.__templates[0]
+    
     # Event handlers
     #================================================================================================
     # Tab event handler
@@ -391,10 +399,19 @@ Configure template and switch area hot spot and the Common/NO/NC switch contacts
         # Get a list of template files
         # We only accept .png files
         template_path = self.__settings[TEMPLATE_PATH]
-        files = [f for f in listdir(template_path) if (isfile(join(template_path, f)) and os.path.splitext(f)[1] == '.png')]
-        item, ok = QInputDialog.getItem(self, "Select Template", "Template", files, 0, False)
-        if ok:
-            print ('Selected', item)
+        files = [f for f in listdir(template_path) if (isfile(join(template_path, f)) and os.path.splitext(f)[1] == '.png' and f not in self.__templates)]
+        if len(files) == 0:
+            msg = QtGui.QMessageBox()
+            msg.setIcon(QtGui.QMessageBox.Information)        
+            msg.setText('There are no new templates!')
+            msg.setWindowTitle('Add Template')
+            msg.setDetailedText("To add a new template:\n  1. Create a .png image file of the layout.\n  2. Add the file to the templates directory.")
+            msg.setStandardButtons(QtGui.QMessageBox.Ok)
+            msg.exec_()
+        else:
+            item, ok = QtGui.QInputDialog.getItem(self, "Select Template", "Template", files, 0, False)
+            if ok:
+                print ('Selected', item)
         
     def __on_relay(self, ):
         """ User selected a new relay """

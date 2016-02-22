@@ -32,7 +32,7 @@ import os,sys
 # SETTINGS and STATE
 
 # Constants for settings
-PATHS = 'paths'
+TEMPLATE_PATH = 'templatepath'
 IMAGE = 'image'
 ARDUINO_SETTINGS = 'arduinosettings'
 NETWORK = 'network'
