@@ -182,7 +182,8 @@ Set the IP address and port to the listening IP/port of the Arduino.
         grid.addWidget(usagelabel, 0, 0)
         instlabel = QtGui.QLabel()
         instructions = """
-Configure template and switch area hot spot and the Common/NO/NC switch contacts.
+Configure template and switch area hot spot
+and the Common/NO/NC switch contacts.
         """
         instlabel.setText(instructions)
         instlabel.setStyleSheet("QLabel {color: rgb(0,64,128); font: 11px}")
