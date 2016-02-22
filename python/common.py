@@ -72,9 +72,7 @@ SETTINGS_PATH = os.path.join('..', 'settings', 'ant_control.cfg')
 STATE_PATH = os.path.join('..', 'settings', 'ant_state.cfg')
 
 DEFAULT_SETTINGS = {
-    PATHS: {
-        IMAGE: 'default.png'
-    },
+    TEMPLATE_PATH: os.path.join('..','templates'), #Path to template files
     ARDUINO_SETTINGS: {
         NETWORK: [
             # ip, port
@@ -82,24 +80,32 @@ DEFAULT_SETTINGS = {
         ]
     },
     RELAY_SETTINGS: {
-        # Relay 0-N
-        #relay-id: {CONFIG_HOTSPOT_TOPLEFT: (x,y), CONFIG_HOTSPOT_BOTTOMRIGHT: (x,y), CONFIG_HOTSPOT_COMMON: (x,y), CONFIG_HOTSPOT_NO: (x,y), CONFIG_HOTSPOT_NC: (x,y)}, relay-id: {...}, ...
+        # TemplateFile: {
+            # Relay 0-N
+            # relay-id: {CONFIG_HOTSPOT_TOPLEFT: (x,y), CONFIG_HOTSPOT_BOTTOMRIGHT: (x,y), CONFIG_HOTSPOT_COMMON: (x,y), CONFIG_HOTSPOT_NO: (x,y), CONFIG_HOTSPOT_NC: (x,y)},
+            # relay-id: {...}, ...
+        # },
+        # TemplateFile: {...}
+        'default.png': {},
     }
 }
 
 DEFAULT_STATE = {
             # X, Y, W, H
     WINDOW: [300, 300, 300, 500],
+    
     RELAYS: {
-                1: RELAY_OFF,
-                2: RELAY_OFF,
-                3: RELAY_OFF,
-                4: RELAY_OFF,
-                5: RELAY_OFF,
-                6: RELAY_OFF,
-                7: RELAY_OFF,
-                8: RELAY_OFF,
-            }
+                'default.png': {
+                    1: RELAY_OFF,
+                    2: RELAY_OFF,
+                    3: RELAY_OFF,
+                    4: RELAY_OFF,
+                    5: RELAY_OFF,
+                    6: RELAY_OFF,
+                    7: RELAY_OFF,
+                    8: RELAY_OFF,
+                },
+    }
 }
 
 # ======================================================================================

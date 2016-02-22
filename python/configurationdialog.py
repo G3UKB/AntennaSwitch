@@ -31,6 +31,8 @@ import copy
 from PyQt4 import QtCore, QtGui
 from time import sleep
 import traceback
+from os import listdir
+from os.path import isfile, join
 
 # Library imports
 
@@ -84,7 +86,7 @@ class ConfigurationDialog(QtGui.QDialog):
         hotspottab = QtGui.QWidget()
         
         self.top_tab_widget.addTab(arduinotab, "Arduino")
-        self.top_tab_widget.addTab(hotspottab, "Hotspots")
+        self.top_tab_widget.addTab(hotspottab, "Relays")
         self.top_tab_widget.currentChanged.connect(self.onTab)        
         
         # Add the top layout to the dialog
@@ -95,14 +97,14 @@ class ConfigurationDialog(QtGui.QDialog):
         # Set layouts for top tab
         arduinogrid = QtGui.QGridLayout()
         arduinotab.setLayout(arduinogrid)
-        hotspotgrid = QtGui.QGridLayout()
-        hotspottab.setLayout(hotspotgrid)  
+        relaygrid = QtGui.QGridLayout()
+        relaytab.setLayout(relaygrid)  
         
         # Add the arduino layout to the dialog
         self.__populateArduino(arduinogrid)
         
         # Add the hotspot to the dialog
-        self.__populateHotspots(hotspotgrid)
+        self.__populateRelays(relaygrid)
         
         # Add common buttons
         self.__populateCommon(top_layout, 1, 0, 1, 1)
@@ -165,9 +167,9 @@ Set the IP address and port to the listening IP/port of the Arduino.
         grid.setRowStretch(3, 1)
         grid.setColumnStretch(2, 1)
     
-    def __populateHotspots(self, grid):
+    def __populateRelays(self, grid):
         """
-        Populate the Hotspots tab
+        Populate the Relays tab
         
         Arguments
             grid    --  grid to populate
@@ -180,28 +182,45 @@ Set the IP address and port to the listening IP/port of the Arduino.
         grid.addWidget(usagelabel, 0, 0)
         instlabel = QtGui.QLabel()
         instructions = """
-Configure switch area hot spot and the Common/NO/NC switch contacts.
+Configure template and switch area hot spot and the Common/NO/NC switch contacts.
         """
         instlabel.setText(instructions)
         instlabel.setStyleSheet("QLabel {color: rgb(0,64,128); font: 11px}")
         grid.addWidget(instlabel, 0, 1, 1, 2)
         
+        # Template select/add
+        relaylabel = QtGui.QLabel('Templates')
+        grid.addWidget(templatelabel, 1, 0)
+        self.templatecombo = QtGui.QComboBox()
+        for key in sorted(self.__settings[RELAY_SETTINGS].keys()):
+            self.templatecombo.addItem(str(key))
+        grid.addWidget(self.templatecombo, 1, 1)
+        self.templatecombo.activated.connect(self.__on_template)
+        self.addtemplatebtn = QtGui.QPushButton('Add', self)
+        self.addtemplatebtn.setToolTip('Add a new template')
+        self.addtemplatebtn.resize(self.addbtn.sizeHint())
+        self.addtemplatebtn.setMinimumHeight(20)
+        self.addtemplatebtn.setMinimumWidth(100)
+        self.addtemplatebtn.setEnabled(True)
+        grid.addWidget(self.addtemplatebtn, 1, 2)
+        self.addtemplatebtn.clicked.connect(self.__addtemplate)        
+        
         # Relay select
         relaylabel = QtGui.QLabel('Relays')
-        grid.addWidget(relaylabel, 1, 0)
+        grid.addWidget(relaylabel, 2, 0)
         self.relaycombo = QtGui.QComboBox()
         for key in sorted(self.__settings[RELAY_SETTINGS].keys()):
             self.relaycombo.addItem(str(key))
-        grid.addWidget(self.relaycombo, 1, 1)
+        grid.addWidget(self.relaycombo, 2, 1)
         self.relaycombo.activated.connect(self.__on_relay)
         
         # Relay ID
         idlabel = QtGui.QLabel('Relay ID')
-        grid.addWidget(idlabel, 2, 0)
+        grid.addWidget(idlabel, 3, 0)
         self.idsb = QtGui.QSpinBox(self)
         self.idsb.setRange(1, 8)
         self.idsb.setValue(1)
-        grid.addWidget(self.idsb, 2, 1)
+        grid.addWidget(self.idsb, 3, 1)
         self.idsb.valueChanged.connect(self.__on_id)
         
         # Radio buttons to select the current field for edit
@@ -216,33 +235,33 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         self.rbgroup.addButton(self.commrb)
         self.rbgroup.addButton(self.norb)
         self.rbgroup.addButton(self.ncrb)
-        grid.addWidget(self.toplrb, 3, 0)
-        grid.addWidget(self.botrrb, 4, 0)
-        grid.addWidget(self.commrb, 5, 0)
-        grid.addWidget(self.norb, 6, 0)
-        grid.addWidget(self.ncrb, 7, 0)
+        grid.addWidget(self.toplrb, 4, 0)
+        grid.addWidget(self.botrrb, 5, 0)
+        grid.addWidget(self.commrb, 6, 0)
+        grid.addWidget(self.norb, 7, 0)
+        grid.addWidget(self.ncrb, 8, 0)
         
         # Field values
         self.__topllabel = QtGui.QLabel('')
         self.__topllabel.setFrameShape(QtGui.QFrame.Box)
         self.__topllabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
-        grid.addWidget(self.__topllabel, 3, 1)        
+        grid.addWidget(self.__topllabel, 4, 1)        
         self.__botrlabel = QtGui.QLabel('')
         self.__botrlabel.setFrameShape(QtGui.QFrame.Box)
         self.__botrlabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
-        grid.addWidget(self.__botrlabel, 4, 1)        
+        grid.addWidget(self.__botrlabel, 5, 1)        
         self.__commlabel = QtGui.QLabel('')
         self.__commlabel.setFrameShape(QtGui.QFrame.Box)
         self.__commlabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
-        grid.addWidget(self.__commlabel, 5, 1)       
+        grid.addWidget(self.__commlabel, 6, 1)       
         self.__nolabel = QtGui.QLabel('')
         self.__nolabel.setFrameShape(QtGui.QFrame.Box)
         self.__nolabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
-        grid.addWidget(self.__nolabel, 6, 1)        
+        grid.addWidget(self.__nolabel, 7, 1)        
         self.__nclabel = QtGui.QLabel('')
         self.__nclabel.setFrameShape(QtGui.QFrame.Box)
         self.__nclabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
-        grid.addWidget(self.__nclabel, 7, 1)
+        grid.addWidget(self.__nclabel, 8, 1)
         
         # Populate the coordinates
         if self.relaycombo.currentIndex() != -1:
@@ -257,7 +276,7 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         self.addbtn.setMinimumHeight(20)
         self.addbtn.setMinimumWidth(100)
         self.addbtn.setEnabled(True)
-        grid.addWidget(self.addbtn, 8, 1)
+        grid.addWidget(self.addbtn, 9, 1)
         self.addbtn.clicked.connect(self.__editadd)
         
         self.delbtn = QtGui.QPushButton('Delete', self)
@@ -266,7 +285,7 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         self.delbtn.setMinimumHeight(20)
         self.delbtn.setMinimumWidth(100)
         self.delbtn.setEnabled(True)
-        grid.addWidget(self.delbtn, 8, 2)
+        grid.addWidget(self.delbtn, 9, 2)
         self.delbtn.clicked.connect(self.__delete)       
             
     def __populateCommon(self, grid, x, y, cols, rows):
@@ -363,6 +382,20 @@ Configure switch area hot spot and the Common/NO/NC switch contacts.
         self.__config_callback(CONFIG_NETWORK, (self.iptxt.text(), self.porttxt.text()))
         
     # Relay event handlers
+    def __on_template(self, ):
+        pass
+    
+    def __add_template(self, ):
+        """ Add a template file """
+        
+        # Get a list of template files
+        # We only accept .png files
+        template_path = self.__settings[TEMPLATE_PATH]
+        files = [f for f in listdir(template_path) if (isfile(join(template_path, f)) and os.path.splitext(f)[1] == '.png')]
+        item, ok = QInputDialog.getItem(self, "Select Template", "Template", files, 0, False)
+        if ok:
+            print ('Selected', item)
+        
     def __on_relay(self, ):
         """ User selected a new relay """
         
