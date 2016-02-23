@@ -254,6 +254,7 @@ Antenna Switch Controller
             persist.saveCfg(SETTINGS_PATH, self.__settings)
             # Back into runtime with the new settings
             self.__image_widget.set_mode(MODE_RUNTIME)
+            print('Calling graphics ', self.__settings[RELAY_SETTINGS], self.__state[RELAYS])
             self.__image_widget.config(self.__settings[RELAY_SETTINGS][self.__current_template], self.__state[RELAYS][self.__current_template])
         elif what == CONFIG_REJECT:
             # Just forget the changes

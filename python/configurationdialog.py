@@ -343,20 +343,20 @@ and the Common/NO/NC switch contacts.
             self.__status_bar.showMessage('x:%d, y:%d' % (data[0], data[1]))
         elif what == EVNT_LEFT:
             # Some marker point
-            if self.idsb.value() not in self.__relay_settings:
-                self.__relay_settings[self.idsb.value()] = {}
+            if self.idsb.value() not in self.__relay_settings[self.__current_template]:
+                self.__relay_settings[self.__current_template][self.idsb.value()] = {}
             if self.toplrb.isChecked():
-                self.__relay_settings[self.idsb.value()][CONFIG_HOTSPOT_TOPLEFT] = (data[0], data[1])
+                self.__relay_settings[self.__current_template][self.idsb.value()][CONFIG_HOTSPOT_TOPLEFT] = (data[0], data[1])
             elif self.botrrb.isChecked():
-                self.__relay_settings[self.idsb.value()][CONFIG_HOTSPOT_BOTTOMRIGHT] = (data[0], data[1])
+                self.__relay_settings[self.__current_template][self.idsb.value()][CONFIG_HOTSPOT_BOTTOMRIGHT] = (data[0], data[1])
             elif self.commrb.isChecked():
-                self.__relay_settings[self.idsb.value()][CONFIG_HOTSPOT_COMMON] = (data[0], data[1])
+                self.__relay_settings[self.__current_template][self.idsb.value()][CONFIG_HOTSPOT_COMMON] = (data[0], data[1])
             elif self.norb.isChecked():
-                self.__relay_settings[self.idsb.value()][CONFIG_HOTSPOT_NO] = (data[0], data[1])
+                self.__relay_settings[self.__current_template][self.idsb.value()][CONFIG_HOTSPOT_NO] = (data[0], data[1])
             elif self.ncrb.isChecked():
-                self.__relay_settings[self.idsb.value()][CONFIG_HOTSPOT_NC] = (data[0], data[1])
+                self.__relay_settings[self.__current_template][self.idsb.value()][CONFIG_HOTSPOT_NC] = (data[0], data[1])
             # Set user text
-            coords = self.__relay_settings[self.idsb.value()]
+            coords = self.__relay_settings[self.__current_template][self.idsb.value()]
             self.__set_coordinates(coords)
     
     # PUBLIC
@@ -414,7 +414,10 @@ and the Common/NO/NC switch contacts.
         else:
             item, ok = QtGui.QInputDialog.getItem(self, "Select Template", "Template", files, 0, False)
             if ok:
-                print ('Selected', item)
+                # Add new template to the combo
+                self.templatecombo.addItem(item)
+                # Add an empty dict for this template
+                self.__settings[RELAY_SETTINGS][item] = {}
         
     def __on_relay(self, ):
         """ User selected a new relay """
@@ -424,7 +427,7 @@ and the Common/NO/NC switch contacts.
         # Set the ID
         self.idsb.setValue(id)
         # Populate the coordinates
-        coords = self.__relay_settings[id]
+        coords = self.__relay_settings[self.__current_template][id]
         self.__set_coordinates(coords)
         # Create/edit temporary structure
         self.__relay_settings[self.__current_template][id] = {
@@ -459,7 +462,7 @@ and the Common/NO/NC switch contacts.
                 self.__commlabel.setText('')
                 self.__nolabel.setText('')
                 self.__nclabel.setText('')
-                self.__relay_settings[new_relay_id] = {
+                self.__relay_settings[self.__current_template][new_relay_id] = {
                     CONFIG_HOTSPOT_TOPLEFT: (None, None),
                     CONFIG_HOTSPOT_BOTTOMRIGHT: (None, None),
                     CONFIG_HOTSPOT_COMMON: (None, None),
@@ -479,7 +482,7 @@ and the Common/NO/NC switch contacts.
     def __delete(self, ):
         """ User wants to delete the selected relay and data """
         
-        del self.__relay_settings[self.idsb.value()]
+        del self.__relay_settings[self.__current_template][self.idsb.value()]
         self.relaycombo.removeItem(self.relaycombo.currentIndex())
         self.relaycombo.setCurrentIndex(-1)
         self.__topllabel.setText('')
