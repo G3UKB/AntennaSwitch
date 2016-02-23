@@ -243,9 +243,9 @@ Antenna Switch Controller
             self.__temp_settings[ARDUINO_SETTINGS][NETWORK][IP] = data[IP]
             self.__temp_settings[ARDUINO_SETTINGS][NETWORK][PORT] = data[PORT]            
         elif what == CONFIG_EDIT_ADD_HOTSPOT:
-            self.__temp_settings[RELAY_SETTINGS][self.__current_template] = data
+            self.__temp_settings[RELAY_SETTINGS] = data
         elif what == CONFIG_DELETE_HOTSPOT:
-            self.__temp_settings[RELAY_SETTINGS][self.__current_template] = data
+            self.__temp_settings[RELAY_SETTINGS] = data
         elif what == CONFIG_ACCEPT:
             self.__settings = copy.deepcopy(self.__temp_settings)
             self.__temp_settings = None
@@ -254,13 +254,23 @@ Antenna Switch Controller
             persist.saveCfg(SETTINGS_PATH, self.__settings)
             # Back into runtime with the new settings
             self.__image_widget.set_mode(MODE_RUNTIME)
-            print('Calling graphics ', self.__settings[RELAY_SETTINGS], self.__state[RELAYS])
             self.__image_widget.config(self.__settings[RELAY_SETTINGS][self.__current_template], self.__state[RELAYS][self.__current_template])
         elif what == CONFIG_REJECT:
             # Just forget the changes
             self.__image_widget.set_mode(MODE_RUNTIME)
             self.__temp_settings = None
-
+        elif what == CONFIG_NEW_TEMPLATE:
+            current_template, settings = data
+            self.__temp_settings[RELAY_SETTINGS] = data
+            self.__state[RELAYS][current_template] = {}
+        elif what == CONFIG_SEL_TEMPLATE:
+            current_template, relay_settings = data
+            self.__current_template = current_template
+            # Set the new image
+            self.__image_widget.set_new_image(os.path.join(self.__settings[TEMPLATE_PATH], current_template))
+            # and set the hotspots
+            self.__image_widget.config(relay_settings[current_template], self.__state[RELAYS][current_template])
+        
     def __graphics_callback(self, what, data):
         """
         Runtime callback from graphics.

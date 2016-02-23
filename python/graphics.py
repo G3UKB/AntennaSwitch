@@ -130,6 +130,19 @@ class HotImageWidget(QtGui.QWidget):
                 # Force a repaint
                 self.repaint()               
 
+    def set_new_image(self, image_path):
+        """
+        A new image has been selected in the configuration
+        
+        Arguments:
+            image_path  -   full path to new image
+            
+        """
+        
+        self.__image_path = image_path
+        # Force a repaint
+        self.repaint()
+        
 # Private Interface
 #==========================================================================================
         
@@ -151,7 +164,7 @@ class HotImageWidget(QtGui.QWidget):
 
     def drawWidget(self, qp):
         """
-        Custom drawing over the backgraond image
+        Custom drawing over the background image
         
         Arguments:
             qp    --  context

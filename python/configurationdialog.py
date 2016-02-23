@@ -68,7 +68,7 @@ class ConfigurationDialog(QtGui.QDialog):
                 
         # Start the idle timer
         QtCore.QTimer.singleShot(100, self.__idleProcessing)
-
+    
     # UI initialisation ===============================================================================================
     def __initUI(self):
         """ Configure the GUI interface """
@@ -269,7 +269,7 @@ and the Common/NO/NC switch contacts.
         # Populate the coordinates
         if self.relaycombo.currentIndex() != -1:
             id = int(self.relaycombo.itemText(self.relaycombo.currentIndex()))
-            coords = self.__relay_settings[id]
+            coords = self.__relay_settings[self.__current_template][id]
             self.__set_coordinates(coords)
         
         # Actions, add/edit, delete
@@ -394,8 +394,30 @@ and the Common/NO/NC switch contacts.
     # Relay event handlers
     def __on_template(self, ):
         """ Set the selected template """
+        
         self.__current_template = self.templatecombo.itemText(self.templatecombo.currentIndex())
-    
+        # Copy in the hotspot settings
+        if self.idsb.value() in self.__relay_settings[self.__current_template]:
+            coords = self.__relay_settings[self.__current_template][self.idsb.value()]
+            self.__set_coordinates(coords)
+        else:
+            # No settings for this relay
+            self.relaycombo.setCurrentIndex(-1)
+            self.__topllabel.setText('')
+            self.__botrlabel.setText('')
+            self.__commlabel.setText('')
+            self.__nolabel.setText('')
+            self.__nclabel.setText('')
+            self.__relay_settings[self.__current_template][self.idsb.value()] = {
+                CONFIG_HOTSPOT_TOPLEFT: (None, None),
+                CONFIG_HOTSPOT_BOTTOMRIGHT: (None, None),
+                CONFIG_HOTSPOT_COMMON: (None, None),
+                CONFIG_HOTSPOT_NO: (None, None),
+                CONFIG_HOTSPOT_NC: (None, None)
+            }
+        # Callback to UI to make the changes
+        self.__config_callback(CONFIG_SEL_TEMPLATE, [self.__current_template, self.__relay_settings])
+        
     def __add_template(self, ):
         """ Add a template file """
         
@@ -417,7 +439,9 @@ and the Common/NO/NC switch contacts.
                 # Add new template to the combo
                 self.templatecombo.addItem(item)
                 # Add an empty dict for this template
-                self.__settings[RELAY_SETTINGS][item] = {}
+                self.__relay_settings[item] = {}
+                # Callback to UI to make the changes
+                self.__config_callback(CONFIG_NEW_TEMPLATE, [self.__current_template, self.__relay_settings])
         
     def __on_relay(self, ):
         """ User selected a new relay """
