@@ -116,6 +116,8 @@ class HotImageWidget(QtGui.QWidget):
             
         """
         
+        print('Hotspots: ', hotspot_list)
+        print('State: ', relay_state)
         self.__hotspots = hotspot_list
         self.__relay_state = relay_state
         # Now we have some hotspots we can draw the switch ID and its NC contact

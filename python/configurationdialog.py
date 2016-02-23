@@ -194,6 +194,7 @@ and the Common/NO/NC switch contacts.
         grid.addWidget(templatelabel, 1, 0)
         self.templatecombo = QtGui.QComboBox()
         self.__templates = sorted(self.__settings[RELAY_SETTINGS].keys())
+        self.__current_template = self.__templates[0]
         for template in self.__templates:
             self.templatecombo.addItem(str(template))
         grid.addWidget(self.templatecombo, 1, 1)
@@ -363,7 +364,7 @@ and the Common/NO/NC switch contacts.
     def get_template(self, ):
         """ Return the template in use """
         
-        return self.__templates[0]
+        return self.__current_template
     
     # Event handlers
     #================================================================================================
@@ -392,7 +393,8 @@ and the Common/NO/NC switch contacts.
         
     # Relay event handlers
     def __on_template(self, ):
-        pass
+        """ Set the selected template """
+        self.__current_template = self.templatecombo.itemText(self.templatecombo.currentIndex())
     
     def __add_template(self, ):
         """ Add a template file """
@@ -425,7 +427,7 @@ and the Common/NO/NC switch contacts.
         coords = self.__relay_settings[id]
         self.__set_coordinates(coords)
         # Create/edit temporary structure
-        self.__relay_settings[id] = {
+        self.__relay_settings[self.__current_template][id] = {
             CONFIG_HOTSPOT_TOPLEFT: (coords[CONFIG_HOTSPOT_TOPLEFT][0], coords[CONFIG_HOTSPOT_TOPLEFT][1]),
             CONFIG_HOTSPOT_BOTTOMRIGHT: (coords[CONFIG_HOTSPOT_BOTTOMRIGHT][0], coords[CONFIG_HOTSPOT_BOTTOMRIGHT][1]),
             CONFIG_HOTSPOT_COMMON: (coords[CONFIG_HOTSPOT_COMMON][0], coords[CONFIG_HOTSPOT_COMMON][1]),
