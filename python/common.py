@@ -88,7 +88,7 @@ DEFAULT_SETTINGS = {
             # relay-id: {...}, ...
         # },
         # TemplateFile: {...}
-        'default.png': {},
+        # 'default.png': {},
     }
 }
 
@@ -97,16 +97,17 @@ DEFAULT_STATE = {
     WINDOW: [300, 300, 300, 500],
     
     RELAYS: {
-                'default.png': {
-                    1: RELAY_OFF,
-                    2: RELAY_OFF,
-                    3: RELAY_OFF,
-                    4: RELAY_OFF,
-                    5: RELAY_OFF,
-                    6: RELAY_OFF,
-                    7: RELAY_OFF,
-                    8: RELAY_OFF,
-                },
+        
+    #            'default.png': {
+    #                1: RELAY_OFF,
+    #                2: RELAY_OFF,
+    #                3: RELAY_OFF,
+    #                4: RELAY_OFF,
+    #                5: RELAY_OFF,
+    #                6: RELAY_OFF,
+    #                7: RELAY_OFF,
+    #                8: RELAY_OFF,
+    #            },
     }
 }
 

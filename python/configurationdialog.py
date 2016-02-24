@@ -194,9 +194,12 @@ and the Common/NO/NC switch contacts.
         grid.addWidget(templatelabel, 1, 0)
         self.templatecombo = QtGui.QComboBox()
         self.__templates = sorted(self.__settings[RELAY_SETTINGS].keys())
-        self.__current_template = self.__templates[0]
-        for template in self.__templates:
-            self.templatecombo.addItem(str(template))
+        if len(self.__templates) > 0:
+            self.__current_template = self.__templates[0]
+            for template in self.__templates:
+                self.templatecombo.addItem(str(template))
+        else:
+            self.__current_template = None
         grid.addWidget(self.templatecombo, 1, 1)
         self.templatecombo.activated.connect(self.__on_template)
         self.addtemplatebtn = QtGui.QPushButton('Add', self)
@@ -212,8 +215,9 @@ and the Common/NO/NC switch contacts.
         relaylabel = QtGui.QLabel('Relays')
         grid.addWidget(relaylabel, 2, 0)
         self.relaycombo = QtGui.QComboBox()
-        for key in sorted(self.__settings[RELAY_SETTINGS][self.__templates[0]].keys()):
-            self.relaycombo.addItem(str(key))
+        if len(self.__settings[RELAY_SETTINGS]) > 0:
+            for key in sorted(self.__settings[RELAY_SETTINGS][self.__templates[0]].keys()):
+                self.relaycombo.addItem(str(key))
         grid.addWidget(self.relaycombo, 2, 1)
         self.relaycombo.activated.connect(self.__on_relay)
         

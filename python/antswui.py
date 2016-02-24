@@ -78,7 +78,11 @@ class AntSwUI(QtGui.QMainWindow):
         # Create the graphics object
         # We have a runtime callback here and a configuration callback to the configurator
         self.__current_template = self.__config_dialog.get_template()
-        self.__image_widget = graphics.HotImageWidget(os.path.join(self.__settings[TEMPLATE_PATH], self.__current_template), self.__graphics_callback, self.__config_dialog.graphics_callback)
+        if self.__current_template != None:
+            path = os.path.join(self.__settings[TEMPLATE_PATH], self.__current_template)
+        else:
+            path = None
+        self.__image_widget = graphics.HotImageWidget(path, self.__graphics_callback, self.__config_dialog.graphics_callback)
         
         # Create the controller API
         self.__api = antcontrol.AntControl(self.__settings[ARDUINO_SETTINGS][NETWORK], self.__api_callback)
@@ -143,25 +147,33 @@ class AntSwUI(QtGui.QMainWindow):
         grid = QtGui.QGridLayout()
         w.setLayout(grid)
 
-        # Configure Graphics Widget
-        grid.addWidget(self.__image_widget, 0,0)
-        self.__image_widget.set_mode(MODE_RUNTIME)
+        # Configure template indicator
+        self.templatelabel = QtGui.QLabel('Template: %s' % (self.__current_template))
+        self.templatelabel.setStyleSheet("QLabel {color: rgb(0,64,128); font: 14px}")
+        grid.addWidget(self.templatelabel, 0, 0)
         
-        # Set the startup state
-        self.__image_widget.config(self.__settings[RELAY_SETTINGS][self.__current_template], self.__state[RELAYS][self.__current_template])
+        # Configure Graphics Widget
+        grid.addWidget(self.__image_widget, 1, 0)
+        self.__image_widget.set_mode(MODE_RUNTIME)
+        grid.setRowStretch(1, 1)
+        grid.setColumnStretch(0, 1)
+        
+        # Set the startup state if possible
+        if self.__current_template != None:
+            self.__image_widget.config(self.__settings[RELAY_SETTINGS][self.__current_template], self.__state[RELAYS][self.__current_template])
         
         # Configure Quit
         line = QtGui.QFrame()
         line.setFrameShape(QtGui.QFrame.HLine)
         line.setFrameShadow(QtGui.QFrame.Sunken)
         line.setStyleSheet("QFrame {background-color: rgb(126,126,126)}")
-        grid.addWidget(line, 1, 0)
+        grid.addWidget(line, 2, 0)
         self.quitbtn = QtGui.QPushButton('Quit', self)
         self.quitbtn.setToolTip('Quit program')
         self.quitbtn.resize(self.quitbtn.sizeHint())
         self.quitbtn.setMinimumHeight(20)
         self.quitbtn.setEnabled(True)
-        grid.addWidget(self.quitbtn, 2, 0)
+        grid.addWidget(self.quitbtn, 3, 0)
         self.quitbtn.clicked.connect(self.quit)
         
         # Finish up
@@ -272,7 +284,9 @@ Antenna Switch Controller
             self.__image_widget.set_new_image(os.path.join(self.__settings[TEMPLATE_PATH], current_template))
             # and set the hotspots 
             self.__image_widget.config(relay_settings[current_template], self.__state[RELAYS][current_template])
-        
+            # Change the label
+            self.templatelabel.setText('Template: %s' % (self.__current_template))
+            
     def __graphics_callback(self, what, data):
         """
         Runtime callback from graphics.
