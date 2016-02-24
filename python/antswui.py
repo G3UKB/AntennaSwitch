@@ -262,7 +262,9 @@ Antenna Switch Controller
         elif what == CONFIG_NEW_TEMPLATE:
             current_template, settings = data
             self.__temp_settings[RELAY_SETTINGS] = data
-            self.__state[RELAYS][current_template] = {}
+            for template in settings:
+                if template not in self.__state[RELAYS]:
+                    self.__state[RELAYS][template] = {1: 'relayoff', 2: 'relayoff', 3: 'relayoff', 4: 'relayoff', 5: 'relayoff', 6: 'relayoff', 7: 'relayoff', 8: 'relayoff'}
         elif what == CONFIG_SEL_TEMPLATE:
             current_template, relay_settings = data
             self.__current_template = current_template

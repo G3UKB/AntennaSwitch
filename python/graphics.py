@@ -181,7 +181,8 @@ class HotImageWidget(QtGui.QWidget):
             pen = QtGui.QPen(QtGui.QColor(255, 0, 0))
             pen.setWidth(2)
             qp.setPen(pen)
-            qp.drawLine(position[0][0], position[0][1], position[1][0], position[1][1])               
+            if position[0][0] != None and position[0][1] != None and position[1][0] != None and position[1][1] != None:
+                qp.drawLine(position[0][0], position[0][1], position[1][0], position[1][1])               
         # See if we need to highlight a hotspot
         if self.__current_hotspot != None:
             pen = QtGui.QPen(QtGui.QColor(255, 0, 0))
