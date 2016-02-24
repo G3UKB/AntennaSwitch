@@ -261,7 +261,7 @@ Antenna Switch Controller
             self.__temp_settings = None
         elif what == CONFIG_NEW_TEMPLATE:
             current_template, settings = data
-            self.__temp_settings[RELAY_SETTINGS] = data
+            self.__temp_settings[RELAY_SETTINGS] = settings
             for template in settings:
                 if template not in self.__state[RELAYS]:
                     self.__state[RELAYS][template] = {1: 'relayoff', 2: 'relayoff', 3: 'relayoff', 4: 'relayoff', 5: 'relayoff', 6: 'relayoff', 7: 'relayoff', 8: 'relayoff'}
@@ -270,7 +270,7 @@ Antenna Switch Controller
             self.__current_template = current_template
             # Set the new image
             self.__image_widget.set_new_image(os.path.join(self.__settings[TEMPLATE_PATH], current_template))
-            # and set the hotspots
+            # and set the hotspots 
             self.__image_widget.config(relay_settings[current_template], self.__state[RELAYS][current_template])
         
     def __graphics_callback(self, what, data):
