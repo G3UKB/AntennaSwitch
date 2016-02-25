@@ -45,20 +45,22 @@ Configuration dialog
 """
 class ConfigurationDialog(QtGui.QDialog):
     
-    def __init__(self, settings, config_callback, parent = None):
+    def __init__(self, settings, current_template, config_callback, parent = None):
         """
         Constructor
         
         Arguments:
-            settings        --  see common.py DEFAULT_SETTINGS for structure
-            config_callback --  callback with configuration data and state
-            parent          --  parent window
+            settings            --  see common.py DEFAULT_SETTINGS for structure
+            current_template    --  current template from last session
+            config_callback     --  callback with configuration data and state
+            parent              --  parent window
         """
         
         super(ConfigurationDialog, self).__init__(parent)
         
         self.__settings = settings
         self.__config_callback = config_callback
+        self.__current_template = current_template
         
         # Class vars
         self.__relay_settings = copy.deepcopy(self.__settings[RELAY_SETTINGS])
@@ -195,11 +197,12 @@ and the Common/NO/NC switch contacts.
         self.templatecombo = QtGui.QComboBox()
         self.__templates = sorted(self.__settings[RELAY_SETTINGS].keys())
         if len(self.__templates) > 0:
-            self.__current_template = self.__templates[0]
             for template in self.__templates:
                 self.templatecombo.addItem(str(template))
-        else:
-            self.__current_template = None
+            # Select the current item
+            index = self.templatecombo.findText(self.__current_template, QtCore.Qt.MatchFixedString)
+            if index >= 0:
+                 self.templatecombo.setCurrentIndex(index)            
         grid.addWidget(self.templatecombo, 1, 1)
         self.templatecombo.activated.connect(self.__on_template)
         self.addtemplatebtn = QtGui.QPushButton('Add', self)

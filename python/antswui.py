@@ -73,12 +73,12 @@ class AntSwUI(QtGui.QMainWindow):
         if self.__state == None: self.__state = DEFAULT_STATE
         
         # Create the configuration dialog
-        self.__config_dialog = configurationdialog.ConfigurationDialog(self.__settings, self.__config_callback)
+        self.__config_dialog = configurationdialog.ConfigurationDialog(self.__settings, self.__state[TEMPLATE], self.__config_callback)
         
         # Create the graphics object
         # We have a runtime callback here and a configuration callback to the configurator
         self.__current_template = self.__config_dialog.get_template()
-        if self.__current_template != None:
+        if self.__current_template != None and len(self.__current_template) > 0:
             path = os.path.join(self.__settings[TEMPLATE_PATH], self.__current_template)
         else:
             path = None
@@ -206,6 +206,11 @@ Antenna Switch Controller
         # Save the current settings
         persist.saveCfg(SETTINGS_PATH, self.__settings)
         self.__state[WINDOW] = [self.x(), self.y(), self.width(), self.height()]
+        if self.__current_template == None:
+            template = ''
+        else:
+            template = self.__current_template
+        self.__state[TEMPLATE] = template
         persist.saveCfg(STATE_PATH, self.__state)
         # Close
         QtCore.QCoreApplication.instance().quit()

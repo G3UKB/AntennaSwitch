@@ -37,6 +37,7 @@ IMAGE = 'image'
 ARDUINO_SETTINGS = 'arduinosettings'
 NETWORK = 'network'
 WINDOW = 'window'
+TEMPLATE = 'template'
 RELAYS = 'relays'
 RELAY_OFF = 'relayoff'
 RELAY_ON = 'relayon'
@@ -95,6 +96,7 @@ DEFAULT_SETTINGS = {
 DEFAULT_STATE = {
             # X, Y, W, H
     WINDOW: [300, 300, 300, 500],
+    TEMPLATE: '',
     
     RELAYS: {
         
