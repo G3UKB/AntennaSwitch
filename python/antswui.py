@@ -144,19 +144,19 @@ class AntSwUI(QtGui.QMainWindow):
         # Set layout
         w = QtGui.QWidget()
         self.setCentralWidget(w)
-        grid = QtGui.QGridLayout()
-        w.setLayout(grid)
+        self.__grid = QtGui.QGridLayout()
+        w.setLayout(self.__grid)
 
         # Configure template indicator
         self.templatelabel = QtGui.QLabel('Template: %s' % (self.__current_template))
         self.templatelabel.setStyleSheet("QLabel {color: rgb(0,64,128); font: 14px}")
-        grid.addWidget(self.templatelabel, 0, 0)
+        self.__grid.addWidget(self.templatelabel, 0, 0)
         
         # Configure Graphics Widget
-        grid.addWidget(self.__image_widget, 1, 0)
+        self.__grid.addWidget(self.__image_widget, 1, 0)
         self.__image_widget.set_mode(MODE_RUNTIME)
-        grid.setRowStretch(1, 1)
-        grid.setColumnStretch(0, 1)
+        self.__grid.setRowStretch(1, 1)
+        self.__grid.setColumnStretch(0, 1)
         
         # Set the startup state if possible
         if self.__current_template != None:
@@ -167,18 +167,19 @@ class AntSwUI(QtGui.QMainWindow):
         line.setFrameShape(QtGui.QFrame.HLine)
         line.setFrameShadow(QtGui.QFrame.Sunken)
         line.setStyleSheet("QFrame {background-color: rgb(126,126,126)}")
-        grid.addWidget(line, 2, 0)
+        self.__grid.addWidget(line, 2, 0)
         self.quitbtn = QtGui.QPushButton('Quit', self)
         self.quitbtn.setToolTip('Quit program')
         self.quitbtn.resize(self.quitbtn.sizeHint())
         self.quitbtn.setMinimumHeight(20)
         self.quitbtn.setEnabled(True)
-        grid.addWidget(self.quitbtn, 3, 0)
+        self.__grid.addWidget(self.quitbtn, 3, 0)
         self.quitbtn.clicked.connect(self.quit)
         
         # Finish up
-        w.setLayout(grid)        
-        self.setGeometry(self.__state[WINDOW][X], self.__state[WINDOW][Y], self.__state[WINDOW][W], self.__state[WINDOW][H])        
+        w.setLayout(self.__grid)        
+        self.setGeometry(self.__state[WINDOW][X], self.__state[WINDOW][Y], self.__state[WINDOW][W], self.__state[WINDOW][H])
+        self.setFixedSize(self.__state[WINDOW][W], self.__state[WINDOW][H])
         self.show()
     
     def about(self):
@@ -197,7 +198,7 @@ Antenna Switch Controller
         
         # Save the current settings
         persist.saveCfg(SETTINGS_PATH, self.__settings)
-        self.__state[WINDOW] = (self.x(), self.y(), self.width(), self.height())
+        self.__state[WINDOW] = [self.x(), self.y(), self.width(), self.height()]
         persist.saveCfg(STATE_PATH, self.__state)
         # Close
         QtCore.QCoreApplication.instance().quit()
@@ -354,12 +355,17 @@ Antenna Switch Controller
             # Initialise state if required
             
             # Check startup conditions
+            settings = True
+            msg = ''
             if self.__settings[ARDUINO_SETTINGS][NETWORK][IP] == None:
-                # We have no Arduino settings so user must configure first
-                QtGui.QMessageBox.information(self, 'Configuration Required', 'Please configure the Arduino network settings.', QtGui.QMessageBox.Ok)
+                settings = False
+                msg = 'Please configure the Arduino network settings.'
             if len(self.__settings[RELAY_SETTINGS]) == 0:
+                settings = False
+                msg += '\nPlease configure the relay settings.'
+            if not settings:
                 # We have no settings so user must configure first
-                QtGui.QMessageBox.information(self, 'Configuration Required', 'Please configure the hotspot settings.', QtGui.QMessageBox.Ok)
+                QtGui.QMessageBox.information(self, 'Configuration Required', msg, QtGui.QMessageBox.Ok)
             
             # Make sure the status gets cleared
             self.__tickcount = 50
@@ -370,6 +376,19 @@ Antenna Switch Controller
             # Status bar
             self.statusBar().showMessage(self.__statusMessage)
             
+            # Window size
+            width, height = self.__image_widget.get_dims()
+            if width != None and height != None:
+                if width > 0 and height > 0:
+                    # We adjust the window size if necessary to accommodate the image size
+                    current_width = self.__grid.cellRect(1,0).width()
+                    current_height = self.__grid.cellRect(1,0).height()
+                    if width != current_width or height != current_height:
+                        self.__state[WINDOW][W] = self.width() + (width - current_width)
+                        self.__state[WINDOW][H] = self.height() + (height - current_height)
+                        self.setGeometry(self.__state[WINDOW][X], self.__state[WINDOW][Y], self.__state[WINDOW][W], self.__state[WINDOW][H])
+                        self.setFixedSize(self.__state[WINDOW][W], self.__state[WINDOW][H])
+        
         # Set next idle time    
         QtCore.QTimer.singleShot(IDLE_TICKER, self.__idleProcessing)
     

@@ -446,6 +446,9 @@ and the Common/NO/NC switch contacts.
                 self.__relay_settings[item] = {}
                 # Callback to UI to make the changes
                 self.__config_callback(CONFIG_NEW_TEMPLATE, [self.__current_template, self.__relay_settings])
+                if len(self.__relay_settings) == 1:
+                    #First template so make it active
+                    self.__on_template()
         
     def __on_relay(self, ):
         """ User selected a new relay """

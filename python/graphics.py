@@ -71,6 +71,9 @@ class HotImageWidget(QtGui.QWidget):
         self.__mode = MODE_UNDEFINED    # config or runtime
         self.__pos1 = None              # switch position start
         self.__pos2 = None              # switch position end
+        self.__width = None             # Width of pixmap
+        self.__height = None            # Height of pixmap
+        
         # {
         #   relay-id: {
         #               CONFIG_HOTSPOT_TOPLEFT: (x,y),
@@ -142,6 +145,11 @@ class HotImageWidget(QtGui.QWidget):
         self.__image_path = image_path
         # Force a repaint
         self.repaint()
+    
+    def get_dims(self):
+        """ Return the pixmap dimentions """
+        
+        return self.__width, self.__height
         
 # Private Interface
 #==========================================================================================
@@ -173,6 +181,9 @@ class HotImageWidget(QtGui.QWidget):
         
         # The widget is just the image
         pix = QtGui.QPixmap(self.__image_path)
+        self.__width = pix.width()
+        self.__height = pix.height()
+        
         # Take the whole allocated area
         qp.drawPixmap(0,0,pix)
         
@@ -256,11 +267,15 @@ class HotImageWidget(QtGui.QWidget):
         """
             
         for id, hotspot in self.__hotspots.items():
-            if  pos.x() >= hotspot[CONFIG_HOTSPOT_TOPLEFT][X] and\
-                pos.y() >= hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] and\
-                pos.x() <= hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][X] and\
-                pos.y() <= hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][Y]:
+            if  hotspot[CONFIG_HOTSPOT_TOPLEFT][X] != None and\
+                hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] != None and\
+                hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][X] != None and\
+                hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][Y] != None:
+                if  pos.x() >= hotspot[CONFIG_HOTSPOT_TOPLEFT][X] and\
+                    pos.y() >= hotspot[CONFIG_HOTSPOT_TOPLEFT][Y] and\
+                    pos.x() <= hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][X] and\
+                    pos.y() <= hotspot[CONFIG_HOTSPOT_BOTTOMRIGHT][Y]:
                 
-                return id, hotspot
+                    return id, hotspot
         return -1, None
                                 
