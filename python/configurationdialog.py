@@ -75,7 +75,7 @@ class ConfigurationDialog(QtGui.QDialog):
         
         # Set the back colour
         palette = QtGui.QPalette()
-        palette.setColor(QtGui.QPalette.Background,QtGui.QColor(74,108,117,255))
+        palette.setColor(QtGui.QPalette.Background,QtGui.QColor(195,195,195,255))
         self.setPalette(palette)
 
         self.setWindowTitle('Configuration')
@@ -111,7 +111,7 @@ class ConfigurationDialog(QtGui.QDialog):
         
         self.__status_bar = QtGui.QStatusBar()
         top_layout.addWidget(self.__status_bar, 2,0)
-        self.__status_bar.setStyleSheet("QStatusBar {color: rgb(255,128,64);font: bold 12px}")
+        self.__status_bar.setStyleSheet("QStatusBar {color: rgb(195,195,195);font: bold 12px}")
         self.__status_bar.showMessage('')
  
     def __populateArduino(self, grid):

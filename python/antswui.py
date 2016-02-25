@@ -58,7 +58,7 @@ class AntSwUI(QtGui.QMainWindow):
         
         # Set the back colour
         palette = QtGui.QPalette()
-        palette.setColor(QtGui.QPalette.Background,QtGui.QColor(74,108,117,255))
+        palette.setColor(QtGui.QPalette.Background,QtGui.QColor(195,195,195,255))
         self.setPalette(palette)
         
         # Class variables
@@ -111,7 +111,7 @@ class AntSwUI(QtGui.QMainWindow):
         """ Configure the GUI interface """
         
         self.setToolTip('Antenna Switch Controller')
-        self.statusBar().setStyleSheet("QStatusBar {color: rgb(255,128,64);font: bold 12px}")
+        self.statusBar().setStyleSheet("QStatusBar {color: rgb(195,195,195);font: bold 12px}")
         self.statusBar().showMessage('')
         QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
         
@@ -149,13 +149,20 @@ class AntSwUI(QtGui.QMainWindow):
 
         # Configure template indicator
         self.templatelabel = QtGui.QLabel('Template: %s' % (self.__current_template))
-        self.templatelabel.setStyleSheet("QLabel {color: rgb(0,64,128); font: 14px}")
+        self.templatelabel.setStyleSheet("QLabel {color: rgb(60,60,60); font: 16px; qproperty-alignment: AlignCenter}")
         self.__grid.addWidget(self.templatelabel, 0, 0)
         
+        # Separator line
+        line1 = QtGui.QFrame()
+        line1.setFrameShape(QtGui.QFrame.HLine)
+        line1.setFrameShadow(QtGui.QFrame.Sunken)
+        line1.setStyleSheet("QFrame {background-color: rgb(126,126,126)}")
+        self.__grid.addWidget(line1, 1, 0)
+
         # Configure Graphics Widget
-        self.__grid.addWidget(self.__image_widget, 1, 0)
+        self.__grid.addWidget(self.__image_widget, 2, 0)
         self.__image_widget.set_mode(MODE_RUNTIME)
-        self.__grid.setRowStretch(1, 1)
+        self.__grid.setRowStretch(2, 1)
         self.__grid.setColumnStretch(0, 1)
         
         # Set the startup state if possible
@@ -163,17 +170,17 @@ class AntSwUI(QtGui.QMainWindow):
             self.__image_widget.config(self.__settings[RELAY_SETTINGS][self.__current_template], self.__state[RELAYS][self.__current_template])
         
         # Configure Quit
-        line = QtGui.QFrame()
-        line.setFrameShape(QtGui.QFrame.HLine)
-        line.setFrameShadow(QtGui.QFrame.Sunken)
-        line.setStyleSheet("QFrame {background-color: rgb(126,126,126)}")
-        self.__grid.addWidget(line, 2, 0)
+        line2 = QtGui.QFrame()
+        line2.setFrameShape(QtGui.QFrame.HLine)
+        line2.setFrameShadow(QtGui.QFrame.Sunken)
+        line2.setStyleSheet("QFrame {background-color: rgb(126,126,126)}")
+        self.__grid.addWidget(line2, 3, 0)
         self.quitbtn = QtGui.QPushButton('Quit', self)
         self.quitbtn.setToolTip('Quit program')
         self.quitbtn.resize(self.quitbtn.sizeHint())
         self.quitbtn.setMinimumHeight(20)
         self.quitbtn.setEnabled(True)
-        self.__grid.addWidget(self.quitbtn, 3, 0)
+        self.__grid.addWidget(self.quitbtn, 4, 0)
         self.quitbtn.clicked.connect(self.quit)
         
         # Finish up
@@ -381,14 +388,13 @@ Antenna Switch Controller
             if width != None and height != None:
                 if width > 0 and height > 0:
                     # We adjust the window size if necessary to accommodate the image size
-                    current_width = self.__grid.cellRect(1,0).width()
-                    current_height = self.__grid.cellRect(1,0).height()
+                    current_width = self.__grid.cellRect(2,0).width()
+                    current_height = self.__grid.cellRect(2,0).height()
                     if width != current_width or height != current_height:
                         self.__state[WINDOW][W] = self.width() + (width - current_width)
                         self.__state[WINDOW][H] = self.height() + (height - current_height)
                         self.setGeometry(self.__state[WINDOW][X], self.__state[WINDOW][Y], self.__state[WINDOW][W], self.__state[WINDOW][H])
                         self.setFixedSize(self.__state[WINDOW][W], self.__state[WINDOW][H])
-        
         # Set next idle time    
         QtCore.QTimer.singleShot(IDLE_TICKER, self.__idleProcessing)
     

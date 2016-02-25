@@ -183,6 +183,7 @@ class HotImageWidget(QtGui.QWidget):
         pix = QtGui.QPixmap(self.__image_path)
         self.__width = pix.width()
         self.__height = pix.height()
+        qp.eraseRect(QtCore.QRect(0,0,self.__width,self.__height))
         
         # Take the whole allocated area
         qp.drawPixmap(0,0,pix)
