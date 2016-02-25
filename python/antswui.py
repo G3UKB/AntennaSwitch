@@ -166,7 +166,7 @@ class AntSwUI(QtGui.QMainWindow):
         self.__grid.setColumnStretch(0, 1)
         
         # Set the startup state if possible
-        if self.__current_template != None:
+        if self.__current_template != None and len(self.__current_template) > 0:
             self.__image_widget.config(self.__settings[RELAY_SETTINGS][self.__current_template], self.__state[RELAYS][self.__current_template])
         
         # Configure Quit
