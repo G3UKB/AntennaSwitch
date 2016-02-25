@@ -111,7 +111,7 @@ class ConfigurationDialog(QtGui.QDialog):
         
         self.__status_bar = QtGui.QStatusBar()
         top_layout.addWidget(self.__status_bar, 2,0)
-        self.__status_bar.setStyleSheet("QStatusBar {color: rgb(195,195,195);font: bold 12px}")
+        self.__status_bar.setStyleSheet("QStatusBar {color: rgb(60,60,60);font: bold 12px}")
         self.__status_bar.showMessage('')
  
     def __populateArduino(self, grid):
@@ -344,7 +344,10 @@ and the Common/NO/NC switch contacts.
         
         if what == EVNT_POS:
             # Report cursor position
-            self.__status_bar.showMessage('x:%d, y:%d' % (data[0], data[1]))
+            if self.top_tab_widget.currentIndex() == 1:
+                self.__status_bar.showMessage('x:%d, y:%d' % (data[0], data[1]))
+            else:
+                self.__status_bar.showMessage('')
         elif what == EVNT_LEFT:
             # Some marker point
             if self.idsb.value() not in self.__relay_settings[self.__current_template]:
@@ -382,7 +385,7 @@ and the Common/NO/NC switch contacts.
             
         """
         
-        pass
+        self.__status_bar.showMessage('')
     
     # Arduino event handlers
     def ipChanged(self, ):
@@ -562,12 +565,22 @@ and the Common/NO/NC switch contacts.
         
         if CONFIG_HOTSPOT_TOPLEFT in coords and coords[CONFIG_HOTSPOT_TOPLEFT] != (None, None):
             self.__topllabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_TOPLEFT][0], coords[CONFIG_HOTSPOT_TOPLEFT][1]))
+        else:
+            self.__topllabel.setText('')
         if CONFIG_HOTSPOT_BOTTOMRIGHT in coords and coords[CONFIG_HOTSPOT_BOTTOMRIGHT] != (None, None):
             self.__botrlabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_BOTTOMRIGHT][0], coords[CONFIG_HOTSPOT_BOTTOMRIGHT][1]))
+        else:
+            self.__botrlabel.setText('')
         if CONFIG_HOTSPOT_COMMON in coords and coords[CONFIG_HOTSPOT_COMMON] != (None, None):
             self.__commlabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_COMMON][0], coords[CONFIG_HOTSPOT_COMMON][1]))
+        else:
+            self.__commlabel.setText('')
         if CONFIG_HOTSPOT_NO in coords and coords[CONFIG_HOTSPOT_NO] != (None, None):
             self.__nolabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_NO][0], coords[CONFIG_HOTSPOT_NO][1]))
+        else:
+            self.__nolabel.setText('')
         if CONFIG_HOTSPOT_NC in coords and coords[CONFIG_HOTSPOT_NC] != (None, None):
             self.__nclabel.setText('X:%3d Y:%3d' % (coords[CONFIG_HOTSPOT_NC][0], coords[CONFIG_HOTSPOT_NC][1]))
+        else:
+            self.__nclabel.setText('')
     

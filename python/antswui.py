@@ -111,13 +111,13 @@ class AntSwUI(QtGui.QMainWindow):
         """ Configure the GUI interface """
         
         self.setToolTip('Antenna Switch Controller')
-        self.statusBar().setStyleSheet("QStatusBar {color: rgb(195,195,195);font: bold 12px}")
+        self.statusBar().setStyleSheet("QStatusBar {color: rgb(60,60,60);font: bold 12px}")
         self.statusBar().showMessage('')
         QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
         
         # Arrange window
         self.move(100, 100)
-        self.setWindowTitle('Antenna Switch')
+        self.setWindowTitle('Antenna/Rig Flexi-Switch')
         
         # Configure Menu
         aboutAction = QtGui.QAction(QtGui.QIcon('about.png'), '&About', self)        
