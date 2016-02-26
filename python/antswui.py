@@ -147,22 +147,67 @@ class AntSwUI(QtGui.QMainWindow):
         self.__grid = QtGui.QGridLayout()
         w.setLayout(self.__grid)
 
+        # Configure the macro buttons
+        macro_grid = QtGui.QGridLayout()
+        macro_widget = QtGui.QWidget()
+        self.__grid.addWidget(macro_widget, 0, 0)
+        macro_widget.setLayout(macro_grid)
+        # We want an array of 6 buttons for both set and execute
+        # Set buttons
+        set1btn = QtGui.QPushButton('Set', self)
+        macro_grid.addWidget(set1btn, 0, 0)
+        set1btn.clicked.connect(self.on_set1btn)
+        set2btn = QtGui.QPushButton('Set', self)
+        macro_grid.addWidget(set2btn, 0, 1)
+        set1btn.clicked.connect(self.on_set2btn)
+        set3btn = QtGui.QPushButton('Set', self)
+        macro_grid.addWidget(set3btn, 0, 2)
+        set1btn.clicked.connect(self.on_set3btn)
+        set4btn = QtGui.QPushButton('Set', self)
+        macro_grid.addWidget(set4btn, 0, 3)
+        set1btn.clicked.connect(self.on_set4btn)
+        set5btn = QtGui.QPushButton('Set', self)
+        macro_grid.addWidget(set5btn, 0, 4)
+        set1btn.clicked.connect(self.on_set5btn)
+        set6btn = QtGui.QPushButton('Set', self)
+        macro_grid.addWidget(set6btn, 0, 5)
+        set1btn.clicked.connect(self.on_set6btn)
+        # Execute buttons
+        ex1btn = QtGui.QPushButton('1', self)
+        macro_grid.addWidget(ex1btn, 1, 0)
+        ex1btn.clicked.connect(self.on_ex1btn)
+        ex2btn = QtGui.QPushButton('2', self)
+        macro_grid.addWidget(ex2btn, 1, 1)
+        ex2btn.clicked.connect(self.on_ex2btn)
+        ex3btn = QtGui.QPushButton('3', self)
+        macro_grid.addWidget(ex3btn, 1, 2)
+        ex3btn.clicked.connect(self.on_ex3btn)
+        ex4btn = QtGui.QPushButton('4', self)
+        macro_grid.addWidget(ex4btn, 1, 3)
+        ex4btn.clicked.connect(self.on_ex4btn)
+        ex5btn = QtGui.QPushButton('5', self)
+        macro_grid.addWidget(ex5btn, 1, 4)
+        ex5btn.clicked.connect(self.on_ex5btn)
+        ex6btn = QtGui.QPushButton('6', self)
+        macro_grid.addWidget(ex6btn, 1, 5)
+        ex6btn.clicked.connect(self.on_ex6btn)
+        
         # Configure template indicator
         self.templatelabel = QtGui.QLabel('Template: %s' % (self.__current_template))
         self.templatelabel.setStyleSheet("QLabel {color: rgb(60,60,60); font: 16px; qproperty-alignment: AlignCenter}")
-        self.__grid.addWidget(self.templatelabel, 0, 0)
+        self.__grid.addWidget(self.templatelabel, 1, 0)
         
         # Separator line
         line1 = QtGui.QFrame()
         line1.setFrameShape(QtGui.QFrame.HLine)
         line1.setFrameShadow(QtGui.QFrame.Sunken)
         line1.setStyleSheet("QFrame {background-color: rgb(126,126,126)}")
-        self.__grid.addWidget(line1, 1, 0)
+        self.__grid.addWidget(line1, 2, 0)
 
         # Configure Graphics Widget
-        self.__grid.addWidget(self.__image_widget, 2, 0)
+        self.__grid.addWidget(self.__image_widget, 3, 0)
         self.__image_widget.set_mode(MODE_RUNTIME)
-        self.__grid.setRowStretch(2, 1)
+        self.__grid.setRowStretch(3, 1)
         self.__grid.setColumnStretch(0, 1)
         
         # Set the startup state if possible
@@ -174,13 +219,13 @@ class AntSwUI(QtGui.QMainWindow):
         line2.setFrameShape(QtGui.QFrame.HLine)
         line2.setFrameShadow(QtGui.QFrame.Sunken)
         line2.setStyleSheet("QFrame {background-color: rgb(126,126,126)}")
-        self.__grid.addWidget(line2, 3, 0)
+        self.__grid.addWidget(line2, 4, 0)
         self.quitbtn = QtGui.QPushButton('Quit', self)
         self.quitbtn.setToolTip('Quit program')
         self.quitbtn.resize(self.quitbtn.sizeHint())
         self.quitbtn.setMinimumHeight(20)
         self.quitbtn.setEnabled(True)
-        self.__grid.addWidget(self.quitbtn, 4, 0)
+        self.__grid.addWidget(self.quitbtn, 5, 0)
         self.quitbtn.clicked.connect(self.quit)
         
         # Finish up
@@ -256,9 +301,55 @@ Antenna Switch Controller
         # Show the dialog. This makes it non-modal
         self.__config_dialog.show()
                 
-    # Main event handlers =============================================================================================
-   
+    # Macro event handlers =============================================================================================
+    def on_set1btn(self):
+        
+        self.__do_setbtn(1)
     
+    def on_set2btn(self):
+        
+        self.__do_setbtn(2)
+    
+    def on_set3btn(self):
+        
+        self.__do_setbtn(3)
+    
+    def on_set4btn(self):
+        
+        self.__do_setbtn(4)
+    
+    def on_set5btn(self):
+        
+        self.__do_setbtn(5)
+    
+    def on_set6btn(self):
+        
+        self.__do_setbtn(6)
+    
+    def on_ex1btn(self):
+        
+        self.__do_exbtn(1)
+        
+    def on_ex2btn(self):
+        
+        self.__do_exbtn(2)
+        
+    def on_ex3btn(self):
+        
+        self.__do_exbtn(3)
+        
+    def on_ex4btn(self):
+        
+        self.__do_exbtn(4)
+        
+    def on_ex5btn(self):
+        
+        self.__do_exbtn(5)
+        
+    def on_ex6btn(self):
+        
+        self.__do_exbtn(6)
+       
     # Callback handler ===============================================================================================
     def __config_callback(self, what, data):
         """
@@ -407,8 +498,8 @@ Antenna Switch Controller
             if width != None and height != None:
                 if width > 0 and height > 0:
                     # We adjust the window size if necessary to accommodate the image size
-                    current_width = self.__grid.cellRect(2,0).width()
-                    current_height = self.__grid.cellRect(2,0).height()
+                    current_width = self.__grid.cellRect(3,0).width()
+                    current_height = self.__grid.cellRect(3,0).height()
                     if width != current_width or height != current_height:
                         self.__state[WINDOW][W] = self.width() + (width - current_width)
                         self.__state[WINDOW][H] = self.height() + (height - current_height)
@@ -433,7 +524,15 @@ Antenna Switch Controller
                 widget.setEnabled(True)
             else:
                 widget.setEnabled(False)         
+    
+    def __do_setbtn(self, btn):
         
+        pass
+    
+    def __do_exbtn(self, btn):
+        
+        pass
+    
 #======================================================================================================================
 # Main code
 def main():
