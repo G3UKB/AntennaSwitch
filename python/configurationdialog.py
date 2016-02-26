@@ -428,9 +428,15 @@ and the Common/NO/NC switch contacts.
         self.relaycombo.clear()
         self.relaycombo.setCurrentIndex(-1)
         for relay in self.__relay_settings[self.__current_template]:
-            self.relaycombo.addItem(str(relay))
-            coords = self.__relay_settings[self.__current_template][relay]
-            self.__set_coordinates(coords)
+            if  self.__relay_settings[self.__current_template][relay][CONFIG_HOTSPOT_TOPLEFT] != (None,None) and\
+                self.__relay_settings[self.__current_template][relay][CONFIG_HOTSPOT_BOTTOMRIGHT] != (None,None) and\
+                self.__relay_settings[self.__current_template][relay][CONFIG_HOTSPOT_COMMON] != (None,None) and\
+                self.__relay_settings[self.__current_template][relay][CONFIG_HOTSPOT_NO] != (None,None) and\
+                self.__relay_settings[self.__current_template][relay][CONFIG_HOTSPOT_NC] != (None,None):
+                # We have a configured relay so add the details
+                self.relaycombo.addItem(str(relay))
+                coords = self.__relay_settings[self.__current_template][relay]
+                self.__set_coordinates(coords)
         if self.relaycombo.count() > 0:
             self.relaycombo.setCurrentIndex(0)
         else:
@@ -460,7 +466,6 @@ and the Common/NO/NC switch contacts.
         # We only accept .png files
         template_path = self.__settings[TEMPLATE_PATH]
         files = [f for f in listdir(template_path) if (isfile(join(template_path, f)) and os.path.splitext(f)[1] == '.png' and f not in self.__templates)]
-        print(files)
         if len(files) == 0:
             msg = QtGui.QMessageBox()
             msg.setIcon(QtGui.QMessageBox.Information)        
@@ -505,7 +510,10 @@ and the Common/NO/NC switch contacts.
             self.__on_template()
                     
     def __on_relay(self, ):
-        """ User selected a new relay """
+        """
+        User selected a new relay from the relay combo.
+        These are actual configured relays.
+        """
         
         # Populate the details
         id = int(self.relaycombo.itemText(self.relaycombo.currentIndex()))
@@ -524,30 +532,34 @@ and the Common/NO/NC switch contacts.
         }
     
     def __on_id(self, ):
-        """ User selected a new relay """
+        """
+        User selected a new relay from the spinbox.
+        These are relay selections which may or may not be configured.
+        """
         
         # Populate the details
-        relay_id_selected = -1
+        combo_id_selected = -1
         if self.relaycombo.currentIndex() != -1:
-            relay_id_selected = int(self.relaycombo.itemText(self.relaycombo.currentIndex()))
-        new_relay_id = self.idsb.value()
-        if relay_id_selected != new_relay_id:
+            combo_id_selected = int(self.relaycombo.itemText(self.relaycombo.currentIndex()))
+        spinbox_id_selected = self.idsb.value()
+        if combo_id_selected != spinbox_id_selected:
+            # We have a new spinbox selection that was not the previous combo selection
             # Does this id exist in the configured relays
-            index = self.relaycombo.findText(str(new_relay_id))
+            index = self.relaycombo.findText(str(spinbox_id_selected))
             if index != -1:
-                # Yes, so just select it
+                # Yes, we have already configured this relay so display the details
                 self.relaycombo.setCurrentIndex(index)
                 coords = self.__relay_settings[self.__current_template][new_relay_id]
                 self.__set_coordinates(coords)
             else:
-                # No, so user wants to configure a new relay
+                # Not configured, so user wants to configure a new relay
                 self.relaycombo.setCurrentIndex(-1)
                 self.__topllabel.setText('')
                 self.__botrlabel.setText('')
                 self.__commlabel.setText('')
                 self.__nolabel.setText('')
                 self.__nclabel.setText('')
-                self.__relay_settings[self.__current_template][new_relay_id] = {
+                self.__relay_settings[self.__current_template][spinbox_id_selected] = {
                     CONFIG_HOTSPOT_TOPLEFT: (None, None),
                     CONFIG_HOTSPOT_BOTTOMRIGHT: (None, None),
                     CONFIG_HOTSPOT_COMMON: (None, None),
