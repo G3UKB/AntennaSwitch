@@ -424,11 +424,19 @@ and the Common/NO/NC switch contacts.
         
         self.__current_template = self.templatecombo.itemText(self.templatecombo.currentIndex())
         # Copy in the hotspot settings
-        if self.idsb.value() in self.__relay_settings[self.__current_template]:
-            coords = self.__relay_settings[self.__current_template][self.idsb.value()]
+        self.idsb.setValue(1)   # Set back to first relay
+        self.relaycombo.clear()
+        self.relaycombo.setCurrentIndex(-1)
+        for relay in self.__relay_settings[self.__current_template]:
+            self.relaycombo.addItem(str(relay))
+            coords = self.__relay_settings[self.__current_template][relay]
             self.__set_coordinates(coords)
+        if self.relaycombo.count() > 0:
+            self.relaycombo.setCurrentIndex(0)
         else:
             # No settings for this relay
+            self.relaycombo.setCurrentIndex(-1)            
+            self.relaycombo.clear()
             self.relaycombo.setCurrentIndex(-1)
             self.__topllabel.setText('')
             self.__botrlabel.setText('')
@@ -452,6 +460,7 @@ and the Common/NO/NC switch contacts.
         # We only accept .png files
         template_path = self.__settings[TEMPLATE_PATH]
         files = [f for f in listdir(template_path) if (isfile(join(template_path, f)) and os.path.splitext(f)[1] == '.png' and f not in self.__templates)]
+        print(files)
         if len(files) == 0:
             msg = QtGui.QMessageBox()
             msg.setIcon(QtGui.QMessageBox.Information)        
@@ -467,6 +476,8 @@ and the Common/NO/NC switch contacts.
                 self.templatecombo.addItem(item)
                 # Add an empty dict for this template
                 self.__relay_settings[item] = {}
+                # Update the template list
+                self.__templates = sorted(self.__relay_settings.keys())
                 # Callback to UI to make the changes
                 self.__config_callback(CONFIG_NEW_TEMPLATE, [self.__current_template, self.__relay_settings])
                 if len(self.__relay_settings) == 1:
@@ -526,7 +537,7 @@ and the Common/NO/NC switch contacts.
             if index != -1:
                 # Yes, so just select it
                 self.relaycombo.setCurrentIndex(index)
-                coords = self.__relay_settings[new_relay_id]
+                coords = self.__relay_settings[self.__current_template][new_relay_id]
                 self.__set_coordinates(coords)
             else:
                 # No, so user wants to configure a new relay

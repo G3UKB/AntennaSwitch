@@ -233,6 +233,12 @@ Antenna Switch Controller
         else:
             event.ignore()
     
+    def moveEvent(self, event):
+        """ Track the window position """
+        
+        self.__state[WINDOW][0] = event.pos().x()
+        self.__state[WINDOW][1] = event.pos().y()
+    
     def __configEvnt(self, event):
         """
         Run the configurator.
