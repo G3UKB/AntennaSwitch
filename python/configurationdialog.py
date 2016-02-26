@@ -191,7 +191,7 @@ and the Common/NO/NC switch contacts.
         instlabel.setStyleSheet("QLabel {color: rgb(0,64,128); font: 11px}")
         grid.addWidget(instlabel, 0, 1, 1, 2)
         
-        # Template select/add
+        # Template select
         templatelabel = QtGui.QLabel('Templates')
         grid.addWidget(templatelabel, 1, 0)
         self.templatecombo = QtGui.QComboBox()
@@ -203,34 +203,51 @@ and the Common/NO/NC switch contacts.
             index = self.templatecombo.findText(self.__current_template, QtCore.Qt.MatchFixedString)
             if index >= 0:
                  self.templatecombo.setCurrentIndex(index)            
-        grid.addWidget(self.templatecombo, 1, 1)
+        grid.addWidget(self.templatecombo, 1, 1, 1, 2)
         self.templatecombo.activated.connect(self.__on_template)
+        # Template add
         self.addtemplatebtn = QtGui.QPushButton('Add', self)
         self.addtemplatebtn.setToolTip('Add a new template')
         self.addtemplatebtn.resize(self.addtemplatebtn .sizeHint())
         self.addtemplatebtn.setMinimumHeight(20)
         self.addtemplatebtn.setMinimumWidth(100)
         self.addtemplatebtn.setEnabled(True)
-        grid.addWidget(self.addtemplatebtn, 1, 2)
-        self.addtemplatebtn.clicked.connect(self.__add_template)        
+        grid.addWidget(self.addtemplatebtn, 2, 1)
+        self.addtemplatebtn.clicked.connect(self.__add_template)
+        # Template delete
+        self.deletetemplatebtn = QtGui.QPushButton('Delete', self)
+        self.deletetemplatebtn.setToolTip('Delete selected template')
+        self.deletetemplatebtn.resize(self.deletetemplatebtn .sizeHint())
+        self.deletetemplatebtn.setMinimumHeight(20)
+        self.deletetemplatebtn.setMinimumWidth(100)
+        self.deletetemplatebtn.setEnabled(True)
+        grid.addWidget(self.deletetemplatebtn, 2, 2)
+        self.deletetemplatebtn.clicked.connect(self.__delete_template)  
+        
+        # Separator line
+        line1 = QtGui.QFrame()
+        line1.setFrameShape(QtGui.QFrame.HLine)
+        line1.setFrameShadow(QtGui.QFrame.Sunken)
+        line1.setStyleSheet("QFrame {background-color: rgb(126,126,126)}")
+        grid.addWidget(line1, 3, 0, 1, 3)
         
         # Relay select
         relaylabel = QtGui.QLabel('Relays')
-        grid.addWidget(relaylabel, 2, 0)
+        grid.addWidget(relaylabel, 4, 0)
         self.relaycombo = QtGui.QComboBox()
         if len(self.__settings[RELAY_SETTINGS]) > 0:
             for key in sorted(self.__settings[RELAY_SETTINGS][self.__templates[0]].keys()):
                 self.relaycombo.addItem(str(key))
-        grid.addWidget(self.relaycombo, 2, 1)
+        grid.addWidget(self.relaycombo, 4, 1)
         self.relaycombo.activated.connect(self.__on_relay)
         
         # Relay ID
         idlabel = QtGui.QLabel('Relay ID')
-        grid.addWidget(idlabel, 3, 0)
+        grid.addWidget(idlabel, 5, 0)
         self.idsb = QtGui.QSpinBox(self)
         self.idsb.setRange(1, 8)
         self.idsb.setValue(1)
-        grid.addWidget(self.idsb, 3, 1)
+        grid.addWidget(self.idsb, 5, 1)
         self.idsb.valueChanged.connect(self.__on_id)
         
         # Radio buttons to select the current field for edit
@@ -245,33 +262,33 @@ and the Common/NO/NC switch contacts.
         self.rbgroup.addButton(self.commrb)
         self.rbgroup.addButton(self.norb)
         self.rbgroup.addButton(self.ncrb)
-        grid.addWidget(self.toplrb, 4, 0)
-        grid.addWidget(self.botrrb, 5, 0)
-        grid.addWidget(self.commrb, 6, 0)
-        grid.addWidget(self.norb, 7, 0)
-        grid.addWidget(self.ncrb, 8, 0)
+        grid.addWidget(self.toplrb, 6, 0)
+        grid.addWidget(self.botrrb, 7, 0)
+        grid.addWidget(self.commrb, 8, 0)
+        grid.addWidget(self.norb, 9, 0)
+        grid.addWidget(self.ncrb, 10, 0)
         
         # Field values
         self.__topllabel = QtGui.QLabel('')
         self.__topllabel.setFrameShape(QtGui.QFrame.Box)
         self.__topllabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
-        grid.addWidget(self.__topllabel, 4, 1)        
+        grid.addWidget(self.__topllabel, 6, 1)        
         self.__botrlabel = QtGui.QLabel('')
         self.__botrlabel.setFrameShape(QtGui.QFrame.Box)
         self.__botrlabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
-        grid.addWidget(self.__botrlabel, 5, 1)        
+        grid.addWidget(self.__botrlabel, 7, 1)        
         self.__commlabel = QtGui.QLabel('')
         self.__commlabel.setFrameShape(QtGui.QFrame.Box)
         self.__commlabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
-        grid.addWidget(self.__commlabel, 6, 1)       
+        grid.addWidget(self.__commlabel, 8, 1)       
         self.__nolabel = QtGui.QLabel('')
         self.__nolabel.setFrameShape(QtGui.QFrame.Box)
         self.__nolabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
-        grid.addWidget(self.__nolabel, 7, 1)        
+        grid.addWidget(self.__nolabel, 9, 1)        
         self.__nclabel = QtGui.QLabel('')
         self.__nclabel.setFrameShape(QtGui.QFrame.Box)
         self.__nclabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
-        grid.addWidget(self.__nclabel, 8, 1)
+        grid.addWidget(self.__nclabel, 10, 1)
         
         # Populate the coordinates
         if self.relaycombo.currentIndex() != -1:
@@ -286,7 +303,7 @@ and the Common/NO/NC switch contacts.
         self.addbtn.setMinimumHeight(20)
         self.addbtn.setMinimumWidth(100)
         self.addbtn.setEnabled(True)
-        grid.addWidget(self.addbtn, 9, 1)
+        grid.addWidget(self.addbtn, 11, 1)
         self.addbtn.clicked.connect(self.__editadd)
         
         self.delbtn = QtGui.QPushButton('Delete', self)
@@ -295,7 +312,7 @@ and the Common/NO/NC switch contacts.
         self.delbtn.setMinimumHeight(20)
         self.delbtn.setMinimumWidth(100)
         self.delbtn.setEnabled(True)
-        grid.addWidget(self.delbtn, 9, 2)
+        grid.addWidget(self.delbtn, 11, 2)
         self.delbtn.clicked.connect(self.__delete)       
             
     def __populateCommon(self, grid, x, y, cols, rows):
@@ -455,7 +472,27 @@ and the Common/NO/NC switch contacts.
                 if len(self.__relay_settings) == 1:
                     #First template so make it active
                     self.__on_template()
+    
+    def __delete_template(self):
+        """ Delete the selected template """
         
+        # Be polite, ask user
+        reply = QtGui.QMessageBox.question(self, 'Delete',
+            "Are you sure you want to delete template %s and all its state?\nNote this will not remove the template file itself." % (self.__current_template), QtGui.QMessageBox.Yes | 
+            QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            # Remove from the relay structure
+            if self.__current_template in self.__relay_settings:
+                del self.__relay_settings[self.__current_template]
+            # Remove from the template list
+            index = self.templatecombo.findText(self.__current_template)
+            if index != -1:
+                self.templatecombo.removeItem(index)
+            # Callback to UI to make the changes
+            self.__config_callback(CONFIG_DEL_TEMPLATE, [self.__current_template, self.__relay_settings])
+            # Make the now selected template active
+            self.__on_template()
+                    
     def __on_relay(self, ):
         """ User selected a new relay """
         
@@ -553,6 +590,11 @@ and the Common/NO/NC switch contacts.
         else:
             self.delbtn.setEnabled(False)
         
+        if self.__current_template != None and len(self.__current_template) > 0:
+            self.deletetemplatebtn.setEnabled(True)
+        else:
+            self.deletetemplatebtn.setEnabled(False)
+            
         QtCore.QTimer.singleShot(100, self.__idleProcessing)
         
     # Helpers =========================================================================================================

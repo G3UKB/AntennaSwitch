@@ -285,9 +285,9 @@ Antenna Switch Controller
             self.__image_widget.set_mode(MODE_RUNTIME)
             self.__temp_settings = None
         elif what == CONFIG_NEW_TEMPLATE:
-            current_template, settings = data
-            self.__temp_settings[RELAY_SETTINGS] = settings
-            for template in settings:
+            current_template, relay_settings = data
+            self.__temp_settings[RELAY_SETTINGS] = relay_settings
+            for template in relay_settings:
                 if template not in self.__state[RELAYS]:
                     self.__state[RELAYS][template] = {1: 'relayoff', 2: 'relayoff', 3: 'relayoff', 4: 'relayoff', 5: 'relayoff', 6: 'relayoff', 7: 'relayoff', 8: 'relayoff'}
         elif what == CONFIG_SEL_TEMPLATE:
@@ -299,6 +299,14 @@ Antenna Switch Controller
             self.__image_widget.config(relay_settings[current_template], self.__state[RELAYS][current_template])
             # Change the label
             self.templatelabel.setText('Template: %s' % (self.__current_template))
+        elif what == CONFIG_DEL_TEMPLATE:
+            current_template, relay_settings = data
+            self.__temp_settings[RELAY_SETTINGS] = relay_settings
+            # Delete the state for this template
+            if current_template in self.__state[RELAYS]:
+                del self.__state[RELAYS][current_template]
+            # Another template should immediately be selected (if there is one)
+            self.__current_template = ''
             
     def __graphics_callback(self, what, data):
         """

@@ -66,6 +66,7 @@ CONFIG_ACCEPT = 'configaccept'
 CONFIG_REJECT = 'configreject'
 CONFIG_NEW_TEMPLATE = 'confignewtemplate'
 CONFIG_SEL_TEMPLATE = 'configseltemplate'
+CONFIG_DEL_TEMPLATE = 'configdeltemplate'
 
 # Runtime events
 RUNTIME_RELAY_UPDATE = 'runtimereplayupdate'
