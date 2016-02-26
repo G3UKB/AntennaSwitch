@@ -549,7 +549,7 @@ and the Common/NO/NC switch contacts.
             if index != -1:
                 # Yes, we have already configured this relay so display the details
                 self.relaycombo.setCurrentIndex(index)
-                coords = self.__relay_settings[self.__current_template][new_relay_id]
+                coords = self.__relay_settings[self.__current_template][spinbox_id_selected]
                 self.__set_coordinates(coords)
             else:
                 # Not configured, so user wants to configure a new relay
