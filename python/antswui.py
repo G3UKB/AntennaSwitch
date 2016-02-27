@@ -153,44 +153,57 @@ class AntSwUI(QtGui.QMainWindow):
         self.__grid.addWidget(macro_widget, 0, 0)
         macro_widget.setLayout(macro_grid)
         # We want an array of 6 buttons for both set and execute
-        # Set buttons
-        set1btn = QtGui.QPushButton('Set', self)
-        macro_grid.addWidget(set1btn, 0, 0)
-        set1btn.clicked.connect(self.on_set1btn)
-        set2btn = QtGui.QPushButton('Set', self)
-        macro_grid.addWidget(set2btn, 0, 1)
-        set1btn.clicked.connect(self.on_set2btn)
-        set3btn = QtGui.QPushButton('Set', self)
-        macro_grid.addWidget(set3btn, 0, 2)
-        set1btn.clicked.connect(self.on_set3btn)
-        set4btn = QtGui.QPushButton('Set', self)
-        macro_grid.addWidget(set4btn, 0, 3)
-        set1btn.clicked.connect(self.on_set4btn)
-        set5btn = QtGui.QPushButton('Set', self)
-        macro_grid.addWidget(set5btn, 0, 4)
-        set1btn.clicked.connect(self.on_set5btn)
-        set6btn = QtGui.QPushButton('Set', self)
-        macro_grid.addWidget(set6btn, 0, 5)
-        set1btn.clicked.connect(self.on_set6btn)
-        # Execute buttons
-        ex1btn = QtGui.QPushButton('1', self)
-        macro_grid.addWidget(ex1btn, 1, 0)
-        ex1btn.clicked.connect(self.on_ex1btn)
-        ex2btn = QtGui.QPushButton('2', self)
-        macro_grid.addWidget(ex2btn, 1, 1)
-        ex2btn.clicked.connect(self.on_ex2btn)
-        ex3btn = QtGui.QPushButton('3', self)
-        macro_grid.addWidget(ex3btn, 1, 2)
-        ex3btn.clicked.connect(self.on_ex3btn)
-        ex4btn = QtGui.QPushButton('4', self)
-        macro_grid.addWidget(ex4btn, 1, 3)
-        ex4btn.clicked.connect(self.on_ex4btn)
-        ex5btn = QtGui.QPushButton('5', self)
-        macro_grid.addWidget(ex5btn, 1, 4)
-        ex5btn.clicked.connect(self.on_ex5btn)
-        ex6btn = QtGui.QPushButton('6', self)
-        macro_grid.addWidget(ex6btn, 1, 5)
-        ex6btn.clicked.connect(self.on_ex6btn)
+        # Set and execute button groups
+        self.__set_btn_array = [None] * 6
+        self.__ex_btn_array = [None] * 6
+        # 1
+        self.__set_btn_array[0] = QtGui.QPushButton('Set', self)
+        macro_grid.addWidget(self.__set_btn_array[0], 0, 0)
+        self.__set_btn_array[0].clicked.connect(self.on_set1btn)
+        self.__ex_btn_array[0] = QtGui.QPushButton('1', self)
+        macro_grid.addWidget(self.__ex_btn_array[0], 1, 0)
+        self.__ex_btn_array[0].clicked.connect(self.on_ex1btn)
+        self.__ex_btn_array[0].setEnabled(False)
+        # 2
+        self.__set_btn_array[1] = QtGui.QPushButton('Set', self)
+        macro_grid.addWidget(self.__set_btn_array[1], 0, 1)
+        self.__set_btn_array[1].clicked.connect(self.on_set2btn)
+        self.__ex_btn_array[1] = QtGui.QPushButton('2', self)
+        macro_grid.addWidget(self.__ex_btn_array[1], 1, 1)
+        self.__ex_btn_array[1].clicked.connect(self.on_ex2btn)
+        self.__ex_btn_array[1].setEnabled(False)
+        # 3
+        self.__set_btn_array[2] = QtGui.QPushButton('Set', self)
+        macro_grid.addWidget(self.__set_btn_array[2], 0, 2)
+        self.__set_btn_array[2].clicked.connect(self.on_set3btn)
+        self.__ex_btn_array[2] = QtGui.QPushButton('3', self)
+        macro_grid.addWidget(self.__ex_btn_array[2], 1, 2)
+        self.__ex_btn_array[2].clicked.connect(self.on_ex3btn)
+        self.__ex_btn_array[2].setEnabled(False)
+        # 4
+        self.__set_btn_array[3] = QtGui.QPushButton('Set', self)
+        macro_grid.addWidget(self.__set_btn_array[3], 0, 3)
+        self.__set_btn_array[3].clicked.connect(self.on_set4btn)
+        self.__ex_btn_array[3] = QtGui.QPushButton('4', self)
+        macro_grid.addWidget(self.__ex_btn_array[3], 1, 3)
+        self.__ex_btn_array[3].clicked.connect(self.on_ex4btn)
+        self.__ex_btn_array[3].setEnabled(False)
+        # 5
+        self.__set_btn_array[4] = QtGui.QPushButton('Set', self)
+        macro_grid.addWidget(self.__set_btn_array[4], 0, 4)
+        self.__set_btn_array[4].clicked.connect(self.on_set5btn)
+        self.__ex_btn_array[4] = QtGui.QPushButton('5', self)
+        macro_grid.addWidget(self.__ex_btn_array[4], 1, 4)
+        self.__ex_btn_array[4].clicked.connect(self.on_ex5btn)
+        self.__ex_btn_array[4].setEnabled(False)
+        # 6
+        self.__set_btn_array[5] = QtGui.QPushButton('Set', self)
+        macro_grid.addWidget(self.__set_btn_array[5], 0, 5)
+        self.__set_btn_array[5].clicked.connect(self.on_set6btn)
+        self.__ex_btn_array[5] = QtGui.QPushButton('6', self)
+        macro_grid.addWidget(self.__ex_btn_array[5], 1, 5)
+        self.__ex_btn_array[5].clicked.connect(self.on_ex6btn)
+        self.__ex_btn_array[5].setEnabled(False)
         
         # Configure template indicator
         self.templatelabel = QtGui.QLabel('Template: %s' % (self.__current_template))
@@ -303,52 +316,64 @@ Antenna Switch Controller
                 
     # Macro event handlers =============================================================================================
     def on_set1btn(self):
+        """ Set macro button 1 """
+        
+        self.__do_setbtn(0)
+    
+    def on_set2btn(self):
+        """ Set macro button 2 """
         
         self.__do_setbtn(1)
     
-    def on_set2btn(self):
+    def on_set3btn(self):
+        """ Set macro button 3 """
         
         self.__do_setbtn(2)
     
-    def on_set3btn(self):
+    def on_set4btn(self):
+        """ Set macro button 4 """
         
         self.__do_setbtn(3)
     
-    def on_set4btn(self):
+    def on_set5btn(self):
+        """ Set macro button 5 """
         
         self.__do_setbtn(4)
     
-    def on_set5btn(self):
-        
+    def on_set6btn(self):
+        """ Set macro button 6 """
+
         self.__do_setbtn(5)
     
-    def on_set6btn(self):
-        
-        self.__do_setbtn(6)
-    
     def on_ex1btn(self):
+        """ Execute macro button 1 """
+
+        self.__do_exbtn(0)
+        
+    def on_ex2btn(self):
+        """ Execute macro button 2 """
         
         self.__do_exbtn(1)
         
-    def on_ex2btn(self):
+    def on_ex3btn(self):
+        """ Execute macro button 3 """
         
         self.__do_exbtn(2)
         
-    def on_ex3btn(self):
+    def on_ex4btn(self):
+        """ Execute macro button 4 """
         
         self.__do_exbtn(3)
         
-    def on_ex4btn(self):
+    def on_ex5btn(self):
+        """ Execute macro button 5 """
         
         self.__do_exbtn(4)
         
-    def on_ex5btn(self):
+    def on_ex6btn(self):
+        """ Execute macro button 6 """
         
         self.__do_exbtn(5)
-        
-    def on_ex6btn(self):
-        
-        self.__do_exbtn(6)
        
     # Callback handler ===============================================================================================
     def __config_callback(self, what, data):
@@ -525,9 +550,21 @@ Antenna Switch Controller
             else:
                 widget.setEnabled(False)         
     
-    def __do_setbtn(self, btn):
+    def __do_setbtn(self, macro_index):
+        """
+        Save the configuration for the given button
         
-        pass
+        Arguments:
+            macro_index   --  0-6 index of macro button
+            
+        """
+        
+        # We take the current relay state and save them
+        # in the state record for this macro id.
+        if self.__current_template not in self.__state[MACROS]:
+            self.__state[MACROS][self.__current_template] = {}
+        # Create/update the macro data
+        self.__state[MACROS][self.__current_template][macro_index] = copy.deepcopy(self.__state[RELAYS][[self.__current_template]            
     
     def __do_exbtn(self, btn):
         

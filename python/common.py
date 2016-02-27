@@ -39,6 +39,7 @@ NETWORK = 'network'
 WINDOW = 'window'
 TEMPLATE = 'template'
 RELAYS = 'relays'
+MACROS = 'macros'
 RELAY_OFF = 'relayoff'
 RELAY_ON = 'relayon'
 
@@ -101,16 +102,31 @@ DEFAULT_STATE = {
     
     RELAYS: {
         
-    #            'default.png': {
-    #                1: RELAY_OFF,
-    #                2: RELAY_OFF,
-    #                3: RELAY_OFF,
-    #                4: RELAY_OFF,
-    #                5: RELAY_OFF,
-    #                6: RELAY_OFF,
-    #                7: RELAY_OFF,
-    #                8: RELAY_OFF,
+    #            TemplateFile: {
+    #                1: RELAY_STATE,
+    #                2: RELAY_STATE,
+    #                3: RELAY_STATE,
+    #                4: RELAY_STATE,
+    #                5: RELAY_STATE,
+    #                6: RELAY_STATE,
+    #                7: RELAY_STATE,
+    #                8: RELAY_STATE,
     #            },
+    },
+    MACROS: {
+    #            TemplateFile: {
+    #               1: {
+    #                       1: RELAY_STATE,
+    #                       2: RELAY_STATE,
+    #                       3: RELAY_STATE,
+    #                       4: RELAY_STATE,
+    #                       5: RELAY_STATE,
+    #                       6: RELAY_STATE,
+    #                       7: RELAY_STATE,
+    #                       8: RELAY_STATE,
+    #               },
+    #               2: ...
+    #    
     }
 }
 
