@@ -583,7 +583,7 @@ Antenna Switch Controller
         
         # Change the relay state to agree with the macro settings
         pass
-    
+     
 #======================================================================================================================
 # Main code
 def main():
