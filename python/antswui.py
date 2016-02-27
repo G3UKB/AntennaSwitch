@@ -565,11 +565,21 @@ Antenna Switch Controller
             self.__state[MACROS][self.__current_template] = {}
         # Create/update the macro data
         self.__state[MACROS][self.__current_template][macro_index] = copy.deepcopy(self.__state[RELAYS][[self.__current_template]            
-    
-    def __do_exbtn(self, btn):
+        # Ask for the tooltip
         
+        # Enable the execute button
+        
+    def __do_exbtn(self, macro_index):
+        """
+        Execte the configuration for the given button
+        
+        Arguments:
+            macro_index   --  0-6 index of macro button
+            
+        """
+        
+        # Change the relay state to agree with the macro settings
         pass
-    
 #======================================================================================================================
 # Main code
 def main():
