@@ -564,14 +564,17 @@ Antenna Switch Controller
         if self.__current_template not in self.__state[MACROS]:
             self.__state[MACROS][self.__current_template] = {}
         # Create/update the macro data
-        self.__state[MACROS][self.__current_template][macro_index] = copy.deepcopy(self.__state[RELAYS][[self.__current_template]            
-        # Ask for the tooltip
-        
+        self.__state[MACROS][self.__current_template][macro_index] = copy.deepcopy(self.__state[RELAYS][self.__current_template])            
+        # Set the tooltip
+        tooltip, ok = QtGui.QInputDialog.getText(self, "Configure Button", "Tooltip")
+        if ok and len(tooltip) > 0:
+            self.__ex_btn_array[macro_index].setToolTip(tooltip)
         # Enable the execute button
+        self.__ex_btn_array[macro_index].setEnabled(True)
         
     def __do_exbtn(self, macro_index):
         """
-        Execte the configuration for the given button
+        Execute the configuration for the given button
         
         Arguments:
             macro_index   --  0-6 index of macro button
@@ -580,6 +583,7 @@ Antenna Switch Controller
         
         # Change the relay state to agree with the macro settings
         pass
+    
 #======================================================================================================================
 # Main code
 def main():
