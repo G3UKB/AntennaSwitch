@@ -80,6 +80,7 @@ class AntSwUI(QtGui.QMainWindow):
         self.__current_template = self.__config_dialog.get_template()
         if self.__current_template != None and len(self.__current_template) > 0:
             path = os.path.join(self.__settings[TEMPLATE_PATH], self.__current_template)
+            self.__do_config_macro_buttons()
         else:
             path = None
         self.__image_widget = graphics.HotImageWidget(path, self.__graphics_callback, self.__config_dialog.graphics_callback)
@@ -421,6 +422,8 @@ Antenna Switch Controller
             self.__image_widget.config(relay_settings[current_template], self.__state[RELAYS][current_template])
             # Change the label
             self.templatelabel.setText('Template: %s' % (self.__current_template))
+            # Set the macro buttons
+            self.__do_config_macro_buttons()
         elif what == CONFIG_DEL_TEMPLATE:
             current_template, relay_settings = data
             self.__temp_settings[RELAY_SETTINGS] = relay_settings
@@ -550,6 +553,22 @@ Antenna Switch Controller
             else:
                 widget.setEnabled(False)         
     
+    def __do_config_macro_buttons(self, ):
+        """
+        Enable macro buttons if macros are defined for the current template.
+        Set the button tooltips.
+        
+        """
+        
+        macro_data = self.__state[MACROS][self.__current_template][macro_index]
+        for macro_index in range(1, MAX_RLY+1):
+            if macro_index in macro_data:
+                self.__ex_btn_array[macro_index].setEnabled(True)
+                self.__ex_btn_array[macro_index].setToolTip(macro_data[TT])
+            else:
+                self.__ex_btn_array[macro_index].setEnabled(False)
+                self.__ex_btn_array[macro_index].setToolTip('')
+           
     def __do_setbtn(self, macro_index):
         """
         Save the configuration for the given button
@@ -569,6 +588,7 @@ Antenna Switch Controller
         tooltip, ok = QtGui.QInputDialog.getText(self, "Configure Button", "Tooltip")
         if ok and len(tooltip) > 0:
             self.__ex_btn_array[macro_index].setToolTip(tooltip)
+            self.__state[MACROS][self.__current_template][macro_index][TT] = tooltip
         # Enable the execute button
         self.__ex_btn_array[macro_index].setEnabled(True)
         
@@ -582,7 +602,11 @@ Antenna Switch Controller
         """
         
         # Change the relay state to agree with the macro settings
-        pass
+        macro_data = self.__state[MACROS][self.__current_template][macro_index]
+        for macro_index in range(1, MAX_RLY+1):
+            # Set relay ID n
+            if macro_index in macro_data:
+                self.__api.set_relay(macro_index, macro_data[macro_index])        
      
 #======================================================================================================================
 # Main code

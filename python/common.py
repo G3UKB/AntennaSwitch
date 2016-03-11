@@ -40,8 +40,10 @@ WINDOW = 'window'
 TEMPLATE = 'template'
 RELAYS = 'relays'
 MACROS = 'macros'
+TT = 0  # Tooltip for macro
 RELAY_OFF = 'relayoff'
 RELAY_ON = 'relayon'
+MAX_RLY = 6
 
 # Index into comms parameters
 IP = 0
@@ -116,6 +118,7 @@ DEFAULT_STATE = {
     MACROS: {
     #            TemplateFile: {
     #               1: {
+    #                       TT: tooltip,
     #                       1: RELAY_STATE,
     #                       2: RELAY_STATE,
     #                       3: RELAY_STATE,
