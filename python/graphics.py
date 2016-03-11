@@ -150,6 +150,23 @@ class HotImageWidget(QtGui.QWidget):
         """ Return the pixmap dimentions """
         
         return self.__width, self.__height
+    
+    def set_relay_state(self, relay_id, contact_state):
+        """
+        Manually set a relay graphic state
+        
+        Arguments:
+            relay_id        --  0-5
+            contact_state   --  RELAY_ON | RELAY_OFF
+            
+        """
+        
+        hotspot = self.__hotspots[relay_id]
+        if contact_state == RELAY_OFF:
+            self.__draw_switch_positions[relay_id] = (((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NC][X], hotspot[CONFIG_HOTSPOT_NC][Y])))
+        else:
+            self.__draw_switch_positions[relay_id] = (((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NO][X], hotspot[CONFIG_HOTSPOT_NO][Y])))
+        self.repaint()
         
 # Private Interface
 #==========================================================================================

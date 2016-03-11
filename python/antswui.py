@@ -606,10 +606,11 @@ Antenna Switch Controller
         
         # Change the relay state to agree with the macro settings
         macro_data = self.__state[MACROS][self.__current_template][macro_index]
-        for macro_index in range(MAX_RLYS):
+        for relay_id in range(MAX_RLYS):
             # Set relay ID n
-            if macro_index in macro_data:
-                self.__api.set_relay(macro_index, macro_data[macro_index])        
+            if relay_id in macro_data:
+                self.__image_widget.set_relay_state(relay_id+1, macro_data[relay_id])
+                self.__api.set_relay(relay_id, macro_data[relay_id])        
      
 #======================================================================================================================
 # Main code
