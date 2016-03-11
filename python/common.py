@@ -43,7 +43,8 @@ MACROS = 'macros'
 TT = 0  # Tooltip for macro
 RELAY_OFF = 'relayoff'
 RELAY_ON = 'relayon'
-MAX_RLY = 6
+MAX_RLYS = 8
+MAX_MACROS = 6
 
 # Index into comms parameters
 IP = 0
