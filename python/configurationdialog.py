@@ -440,7 +440,7 @@ and the Common/NO/NC switch contacts.
         if self.relaycombo.count() > 0:
             self.relaycombo.setCurrentIndex(0)
         else:
-            # No settings for this relay
+            # No settings for selected relay
             self.relaycombo.setCurrentIndex(-1)            
             self.relaycombo.clear()
             self.relaycombo.setCurrentIndex(-1)
@@ -449,13 +449,7 @@ and the Common/NO/NC switch contacts.
             self.__commlabel.setText('')
             self.__nolabel.setText('')
             self.__nclabel.setText('')
-            self.__relay_settings[self.__current_template][self.idsb.value()] = {
-                CONFIG_HOTSPOT_TOPLEFT: (None, None),
-                CONFIG_HOTSPOT_BOTTOMRIGHT: (None, None),
-                CONFIG_HOTSPOT_COMMON: (None, None),
-                CONFIG_HOTSPOT_NO: (None, None),
-                CONFIG_HOTSPOT_NC: (None, None)
-            }
+            
         # Callback to UI to make the changes
         self.__config_callback(CONFIG_SEL_TEMPLATE, [self.__current_template, self.__relay_settings])
         
@@ -504,6 +498,8 @@ and the Common/NO/NC switch contacts.
             index = self.templatecombo.findText(self.__current_template)
             if index != -1:
                 self.templatecombo.removeItem(index)
+            # Update the template list
+            self.__templates = sorted(self.__relay_settings.keys()) 
             # Callback to UI to make the changes
             self.__config_callback(CONFIG_DEL_TEMPLATE, [self.__current_template, self.__relay_settings])
             # Make the now selected template active

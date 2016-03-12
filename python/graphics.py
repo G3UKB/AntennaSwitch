@@ -121,9 +121,11 @@ class HotImageWidget(QtGui.QWidget):
         
         self.__hotspots = hotspot_list
         self.__relay_state = relay_state
+        self.__draw_switch_positions = {}
         # Now we have some hotspots we can draw the switch ID and its NC contact
         if self.__hotspots != None:
             for id, hotspot in self.__hotspots.items():
+                print(id, hotspot)
                 # Draw the contact state 
                 contact_state = relay_state[id]
                 if contact_state == RELAY_OFF:
@@ -205,7 +207,7 @@ class HotImageWidget(QtGui.QWidget):
         # Take the whole allocated area
         qp.drawPixmap(0,0,pix)
         
-        # See if we need to draw switch positions           
+        # See if we need to draw switch positions
         for id, position in self.__draw_switch_positions.items():
             pen = QtGui.QPen(QtGui.QColor(255, 0, 0))
             pen.setWidth(2)
