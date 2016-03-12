@@ -245,8 +245,9 @@ class AntSwUI(QtGui.QMainWindow):
         self.__do_config_macro_buttons()
         
         # Finish up
-        w.setLayout(self.__grid)        
-        self.setGeometry(self.__state[WINDOW][X], self.__state[WINDOW][Y], self.__state[WINDOW][W], self.__state[WINDOW][H])
+        w.setLayout(self.__grid)
+        self.resize(self.__state[WINDOW][W], self.__state[WINDOW][H])
+        self.move(self.__state[WINDOW][X], self.__state[WINDOW][Y])
         self.setFixedSize(self.__state[WINDOW][W], self.__state[WINDOW][H])
         self.show()
     
@@ -564,7 +565,6 @@ Antenna Switch Controller
         
         if self.__current_template in self.__state[MACROS]:
             macro_data = self.__state[MACROS][self.__current_template]
-            print(macro_data)
             for macro_index in range(MAX_MACROS):
                 if macro_index in macro_data:
                     self.__ex_btn_array[macro_index].setEnabled(True)
@@ -618,7 +618,9 @@ Antenna Switch Controller
             # Set relay ID n
             if relay_id in macro_data:
                 self.__image_widget.set_relay_state(relay_id, macro_data[relay_id])
-                self.__api.set_relay(relay_id, macro_data[relay_id])        
+                self.__api.set_relay(relay_id, macro_data[relay_id])
+        # Update the relay data so it reflects the selected macro
+        self.__state[RELAYS][self.__current_template] = copy.deepcopy(macro_data)            
      
 #======================================================================================================================
 # Main code

@@ -125,7 +125,6 @@ class HotImageWidget(QtGui.QWidget):
         # Now we have some hotspots we can draw the switch ID and its NC contact
         if self.__hotspots != None:
             for id, hotspot in self.__hotspots.items():
-                print(id, hotspot)
                 # Draw the contact state 
                 contact_state = relay_state[id]
                 if contact_state == RELAY_OFF:
@@ -163,12 +162,13 @@ class HotImageWidget(QtGui.QWidget):
             
         """
         
-        hotspot = self.__hotspots[relay_id]
-        if contact_state == RELAY_OFF:
-            self.__draw_switch_positions[relay_id] = (((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NC][X], hotspot[CONFIG_HOTSPOT_NC][Y])))
-        else:
-            self.__draw_switch_positions[relay_id] = (((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NO][X], hotspot[CONFIG_HOTSPOT_NO][Y])))
-        self.repaint()
+        if relay_id in self.__hotspots:
+            hotspot = self.__hotspots[relay_id]
+            if contact_state == RELAY_OFF:
+                self.__draw_switch_positions[relay_id] = (((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NC][X], hotspot[CONFIG_HOTSPOT_NC][Y])))
+            else:
+                self.__draw_switch_positions[relay_id] = (((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NO][X], hotspot[CONFIG_HOTSPOT_NO][Y])))
+            self.repaint()
         
 # Private Interface
 #==========================================================================================
