@@ -564,6 +564,7 @@ Antenna Switch Controller
         
         if self.__current_template in self.__state[MACROS]:
             macro_data = self.__state[MACROS][self.__current_template]
+            print(macro_data)
             for macro_index in range(MAX_MACROS):
                 if macro_index in macro_data:
                     self.__ex_btn_array[macro_index].setEnabled(True)
@@ -571,6 +572,10 @@ Antenna Switch Controller
                 else:
                     self.__ex_btn_array[macro_index].setEnabled(False)
                     self.__ex_btn_array[macro_index].setToolTip('')
+        else:
+            for macro_index in range(MAX_MACROS):
+                self.__ex_btn_array[macro_index].setEnabled(False)
+                self.__ex_btn_array[macro_index].setToolTip('')
            
     def __do_setbtn(self, macro_index):
         """
@@ -592,6 +597,9 @@ Antenna Switch Controller
         if ok and len(tooltip) > 0:
             self.__ex_btn_array[macro_index].setToolTip(tooltip)
             self.__state[MACROS][self.__current_template][macro_index][TT] = tooltip
+        else:
+            self.__ex_btn_array[macro_index].setToolTip('')
+            self.__state[MACROS][self.__current_template][macro_index][TT] = ''
         # Enable the execute button
         self.__ex_btn_array[macro_index].setEnabled(True)
         
@@ -606,10 +614,10 @@ Antenna Switch Controller
         
         # Change the relay state to agree with the macro settings
         macro_data = self.__state[MACROS][self.__current_template][macro_index]
-        for relay_id in range(MAX_RLYS):
+        for relay_id in range(1, MAX_RLYS-1):
             # Set relay ID n
             if relay_id in macro_data:
-                self.__image_widget.set_relay_state(relay_id+1, macro_data[relay_id])
+                self.__image_widget.set_relay_state(relay_id, macro_data[relay_id])
                 self.__api.set_relay(relay_id, macro_data[relay_id])        
      
 #======================================================================================================================

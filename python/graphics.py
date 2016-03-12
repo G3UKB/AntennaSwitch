@@ -156,7 +156,7 @@ class HotImageWidget(QtGui.QWidget):
         Manually set a relay graphic state
         
         Arguments:
-            relay_id        --  0-5
+            relay_id        --  1-7
             contact_state   --  RELAY_ON | RELAY_OFF
             
         """
