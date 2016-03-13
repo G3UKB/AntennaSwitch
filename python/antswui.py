@@ -594,14 +594,14 @@ Antenna Switch Controller
             
         """
         
-        # We take the current relay state and save them
+        # We take the current relay states and save them
         # in the state record for this macro id.
         if self.__current_template not in self.__state[MACROS]:
             self.__state[MACROS][self.__current_template] = {}
         # Create/update the macro data
         self.__state[MACROS][self.__current_template][macro_index] = copy.deepcopy(self.__state[RELAYS][self.__current_template])            
         # Set the tooltip
-        tooltip, ok = QtGui.QInputDialog.getText(self, "Configure Button", "Tooltip")
+        tooltip, ok = QtGui.QInputDialog.getText(self, "Configure Button", "Description ")
         if ok and len(tooltip) > 0:
             self.__ex_btn_array[macro_index].setToolTip(tooltip)
             self.__state[MACROS][self.__current_template][macro_index][TT] = tooltip
@@ -651,7 +651,7 @@ def main():
         sys.exit(ant_sw_ui.run())
         
     except Exception as e:
-        print ('Exception','Exception [%s][%s]' % (str(e), traceback.format_exc()))
+        print ('Exception [%s][%s]' % (str(e), traceback.format_exc()))
  
 # Entry point       
 if __name__ == '__main__':
