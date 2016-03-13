@@ -204,6 +204,9 @@ class AntSwUI(QtGui.QMainWindow):
         macro_grid.addWidget(self.__ex_btn_array[5], 1, 5)
         self.__ex_btn_array[5].clicked.connect(self.on_ex6btn)
         self.__ex_btn_array[5].setEnabled(False)
+        # Set default background
+        for button_id in range(len(self.__ex_btn_array)):
+            self.__ex_btn_array[button_id].setStyleSheet("QPushButton {background-color: rgb(177,177,177)}")
         
         # Configure template indicator
         self.templatelabel = QtGui.QLabel('Template: %s' % (self.__current_template))
@@ -447,8 +450,13 @@ Antenna Switch Controller
         """
         
         if what == RUNTIME_RELAY_UPDATE:
+            # Set the relay
             self.__api.set_relay(data[0], data[1])
-    
+            # Remove macro button highlight
+            # Set default background
+            for button_id in range(len(self.__ex_btn_array)):
+                self.__ex_btn_array[button_id].setStyleSheet("QPushButton {background-color: rgb(177,177,177)}")
+            
     def __api_callback(self, message):
         
         """
@@ -620,7 +628,15 @@ Antenna Switch Controller
                 self.__image_widget.set_relay_state(relay_id, macro_data[relay_id])
                 self.__api.set_relay(relay_id, macro_data[relay_id])
         # Update the relay data so it reflects the selected macro
-        self.__state[RELAYS][self.__current_template] = copy.deepcopy(macro_data)            
+        self.__state[RELAYS][self.__current_template] = copy.deepcopy(macro_data)
+        # Adjust button background
+        for button_id in range(len(self.__ex_btn_array)):
+            if button_id == macro_index:
+                # Set background to selected
+                self.__ex_btn_array[button_id].setStyleSheet("QPushButton {background-color: rgb(240,78,0)}")
+            else:
+                self.__ex_btn_array[button_id].setStyleSheet("QPushButton {background-color: rgb(177,177,177)}")
+        
      
 #======================================================================================================================
 # Main code
