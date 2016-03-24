@@ -36,13 +36,14 @@ Controller API
 """
 class AntControl :
     
-    def __init__(self, network_params, callback):
+    def __init__(self, network_params, relay_state, callback):
         """
         Constructor
         
         Arguments:
         
             network_params   --  [ip, port] address of Arduino
+            relay_state      --  initial relay state
             callback         --  status and progress callback
         """
         
@@ -55,12 +56,16 @@ class AntControl :
             self.__ip = network_params[0]
             self.__port = int(network_params[1])
             self.__ready = True
-            
+               
         # Callback here with progress, SWR, completion etc
         self.__callback = callback
         
-        # Create UDP socket
-        self.__sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        if self.__ready:
+            # Create UDP socket
+            self.__sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            # Set the relays according to the state
+            for relay_id, state in relay_state.items():
+                self.set_relay(relay_id, state)
 
     def resetNetworkParams(self, ip, port):
         """
@@ -75,9 +80,20 @@ class AntControl :
         self.__ip = ip
         self.__port = int(port)
         self.__ready = True
+        # Set the relays according to the state
+        for relay_id, state in relay_state.items():
+            self.set_relay(relay_id, state)
     
     # API =============================================================================================================
     def set_relay(self, relay_id, switch_to):
+        """
+        Parameters (may) have changed
+        
+        Arguments:
+        
+            relay_id    --  1-6
+            switch_to   --  RELAY_ON|RELAY_OFF
+        """
         
         if not self.__ready:
             self.__callback('failure: no network params!')
@@ -87,6 +103,14 @@ class AntControl :
         else:
             self.__send(str(relay_id) + 'd')
         self.__doReceive()
+    
+    def reset_relays(self, ):
+        """ Set all relays de-energised """
+        
+        if self.__ready:
+            for relay_id in range(1,7):
+                self.set_relay(relay_id, RELAY_OFF)
+            
     
     # Helpers =========================================================================================================    
     def __send(self, command):

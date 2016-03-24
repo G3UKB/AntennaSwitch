@@ -68,6 +68,8 @@ void setup() {
   pinMode(relay_6, OUTPUT);
   pinMode(relay_7, OUTPUT);
   pinMode(relay_8, OUTPUT);
+  // Relays are active LOW so ensure all are de-energised
+  reset_relays();
 
   // Initialise serial port to be used for debug
   Serial.begin(9600);

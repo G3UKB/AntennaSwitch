@@ -85,7 +85,7 @@ class AntSwUI(QtGui.QMainWindow):
         self.__image_widget = graphics.HotImageWidget(path, self.__graphics_callback, self.__config_dialog.graphics_callback)
         
         # Create the controller API
-        self.__api = antcontrol.AntControl(self.__settings[ARDUINO_SETTINGS][NETWORK], self.__api_callback)
+        self.__api = antcontrol.AntControl(self.__settings[ARDUINO_SETTINGS][NETWORK], self.__state[RELAYS][self.__current_template], self.__api_callback)
         
         # Initialise the GUI
         self.initUI()
@@ -277,6 +277,9 @@ Antenna Switch Controller
             template = self.__current_template
         self.__state[TEMPLATE] = template
         persist.saveCfg(STATE_PATH, self.__state)
+        # Turn relays off
+        #Probably not a great idea as it could remove an antenna while TXing
+        # self.__api.reset_relays()
         # Close
         QtCore.QCoreApplication.instance().quit()
     
