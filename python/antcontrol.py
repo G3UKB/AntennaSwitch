@@ -59,12 +59,14 @@ class AntControl :
                
         # Callback here with progress, SWR, completion etc
         self.__callback = callback
+        # Current state of relays
+        self.__relay_state = relay_state
         
         if self.__ready:
             # Create UDP socket
             self.__sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             # Set the relays according to the state
-            for relay_id, state in relay_state.items():
+            for relay_id, state in self.__relay_state.items():
                 self.set_relay(relay_id, state)
 
     def resetNetworkParams(self, ip, port):
@@ -81,7 +83,7 @@ class AntControl :
         self.__port = int(port)
         self.__ready = True
         # Set the relays according to the state
-        for relay_id, state in relay_state.items():
+        for relay_id, state in self.__relay_state.items():
             self.set_relay(relay_id, state)
     
     # API =============================================================================================================
