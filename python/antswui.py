@@ -85,7 +85,11 @@ class AntSwUI(QtGui.QMainWindow):
         self.__image_widget = graphics.HotImageWidget(path, self.__graphics_callback, self.__config_dialog.graphics_callback)
         
         # Create the controller API
-        self.__api = antcontrol.AntControl(self.__settings[ARDUINO_SETTINGS][NETWORK], self.__state[RELAYS][self.__current_template], self.__api_callback)
+        if len(self.__current_template) > 0:
+            relay_state = self.__state[RELAYS][self.__current_template]
+        else:
+            relay_state = None
+        self.__api = antcontrol.AntControl(self.__settings[ARDUINO_SETTINGS][NETWORK], relay_state, self.__api_callback)
         
         # Initialise the GUI
         self.initUI()

@@ -66,8 +66,9 @@ class AntControl :
             # Create UDP socket
             self.__sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             # Set the relays according to the state
-            for relay_id, state in self.__relay_state.items():
-                self.set_relay(relay_id, state)
+            if self.__relay_state != None:
+                for relay_id, state in self.__relay_state.items():
+                    self.set_relay(relay_id, state)
 
     def resetNetworkParams(self, ip, port):
         """
@@ -83,8 +84,9 @@ class AntControl :
         self.__port = int(port)
         self.__ready = True
         # Set the relays according to the state
-        for relay_id, state in self.__relay_state.items():
-            self.set_relay(relay_id, state)
+        if self.__relay_state != None:
+            for relay_id, state in self.__relay_state.items():
+                self.set_relay(relay_id, state)
     
     # API =============================================================================================================
     def set_relay(self, relay_id, switch_to):
