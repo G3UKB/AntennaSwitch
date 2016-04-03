@@ -52,6 +52,7 @@ class AntControl :
             self.__ip = None
             self.__port = None
             self.__ready = False
+            self.__online = False
         else:
             self.__ip = network_params[0]
             self.__port = int(network_params[1])
@@ -67,12 +68,15 @@ class AntControl :
         if self.__ready:
             # Create UDP socket
             self.__sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            # Set the relays according to the state
-            if self.__relay_state != None:
-                for relay_id, state in self.__relay_state.items():
-                    self.set_relay(relay_id, state)
+            # Check connectivity
+            if self.__ping():
+                self.__online = True
+                # Set the relays according to the state
+                if self.__relay_state != None:
+                    for relay_id, state in self.__relay_state.items():
+                        self.set_relay(relay_id, state)
 
-    def resetNetworkParams(self, ip, port):
+    def resetParams(self, ip, port, relay_state = None):
         """
         Parameters (may) have changed
         
@@ -80,6 +84,8 @@ class AntControl :
         
             ip          --  IP address of Arduino
             port        --  port address for Arduino
+            relay_state --  current relay state
+            
         """
         
         self.__ip = ip
@@ -90,11 +96,14 @@ class AntControl :
         # Create UDP socket
         self.__sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # Set the relays according to the state
-        if self.__relay_state != None:
-            for relay_id, state in self.__relay_state.items():
-                self.set_relay(relay_id, state)
+        if self.__ping():
+            self.__online = True
+            if relay_state != None:
+                self.__relay_state = relay_state
+                for relay_id, state in self.__relay_state.items():
+                    self.set_relay(relay_id, state)
     
-    # API =============================================================================================================
+    # API =============================================================================================================           
     def set_relay(self, relay_id, switch_to):
         """
         Parameters (may) have changed
@@ -125,21 +134,45 @@ class AntControl :
     # Helpers =========================================================================================================    
     def __send(self, command):
         
-        self.__sock.sendto(bytes(command, "utf-8"), (self.__ip, self.__port))
+        if self.__online:
+            self.__sock.sendto(bytes(command, "utf-8"), (self.__ip, self.__port))
         
     def __doReceive(self, wait=False):
         
-        t = threading.Thread(target=receive, args=(self.__sock, self.__callback))
+        t = threading.Thread(target=receive, args=(self.__sock, self.__callback, self.__online))
         t.start()
         if wait:
             t.join()
 
+    def __ping(self):
+        """
+        Check connectivity
+        
+        """
+        
+        if not self.__ready:
+            return False
+        
+        self.__send('ping')
+        try:
+            sock.settimeout(2)
+            data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes            
+        except socket.timeout:
+            # Server didn't respond
+            return False
+        except Exception as e:
+            # Something went wrong
+            return False
+        
 # Receive loop ========================================================================================================        
 # Runs on separate thread as calls are from within a UI event proc so need to detach the long running part and
 # also allow the UI to continue to display status changes.
-def receive(sock, callback):
+def receive(sock, callback, online):
         
     try:
+        if not online:
+            callback('offline: controller is not responding')
+            return
         callback('Communicating with controller...')
         sock.settimeout(5)
         while(1):

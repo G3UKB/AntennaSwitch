@@ -141,6 +141,7 @@ void execute(char *command) {
   
   /*
   * The command set is as follows. Commands are terminated strings.
+  * Ping        - "ping"      -  connectivity test
   * Relay reset - "reset"     -  de-energise all relays
   * Relay on    - "[1-8]e"    -  energise relay 1-8
   * Relay off   - "[1-8]d"    -  de-energise relay 1-8
@@ -152,7 +153,9 @@ void execute(char *command) {
   
   // Assume success
   strcpy(ReplyBuffer, "success");
-  if (strcmp(command, "reset") == 0) {
+  if (strcmp(command, "ping") == 0) {
+    valid = true;
+  } else if (strcmp(command, "reset") == 0) {
     reset_relays();
     valid = true;
   } else {

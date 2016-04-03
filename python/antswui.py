@@ -411,7 +411,7 @@ Antenna Switch Controller
             self.__settings = copy.deepcopy(self.__temp_settings)
             self.__temp_settings = None
             if self.__settings[ARDUINO_SETTINGS][NETWORK][IP] != None and self.__settings[ARDUINO_SETTINGS][NETWORK][PORT] != None:
-                self.__api.resetNetworkParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT])
+                self.__api.resetParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT])
             persist.saveCfg(SETTINGS_PATH, self.__settings)
             # Back into runtime with the new settings
             self.__image_widget.set_mode(MODE_RUNTIME)
@@ -485,6 +485,10 @@ Antenna Switch Controller
                 # Error, so reset
                 _, reason = message.split(':')
                 self.__statusMessage = '**Failed - %s**' % (reason)
+            elif 'offline' in message:
+                self.__statusMessage = 'Controller if offline! - attempting reset'
+                # Try a reset
+                self.__api.resetParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT], self.__state[RELAYS][current_template])
             else:
                 # An info message
                 self.__statusMessage = message
