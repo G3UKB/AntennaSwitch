@@ -52,12 +52,11 @@ class AntControl :
             self.__ip = None
             self.__port = None
             self.__ready = False
-            self.__online = False
         else:
             self.__ip = network_params[0]
             self.__port = int(network_params[1])
             self.__ready = True
-               
+        
         # Callback here with progress, SWR, completion etc
         self.__callback = callback
         # Current state of relays
@@ -65,6 +64,7 @@ class AntControl :
         # Socker
         self.__sock =  None
         
+        self.__online = False
         if self.__ready:
             # Create UDP socket
             self.__sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -76,6 +76,7 @@ class AntControl :
                     for relay_id, state in self.__relay_state.items():
                         self.set_relay(relay_id, state)
 
+    # API =============================================================================================================           
     def resetParams(self, ip, port, relay_state = None):
         """
         Parameters (may) have changed
@@ -103,7 +104,6 @@ class AntControl :
                 for relay_id, state in self.__relay_state.items():
                     self.set_relay(relay_id, state)
     
-    # API =============================================================================================================           
     def set_relay(self, relay_id, switch_to):
         """
         Parameters (may) have changed
@@ -129,8 +129,32 @@ class AntControl :
         if self.__ready:
             for relay_id in range(1,7):
                 self.set_relay(relay_id, RELAY_OFF)
-            
     
+    def is_online(self, relay_state):
+        """
+        If offline try and get up online, return online state
+        
+        Arguments:
+            relay_state --  current state to use if we move to online
+            
+        """
+        
+        if self.__ready:
+            if self.__online:
+                return True
+            else:
+                if self.__ping():
+                    self.__online = True
+                    if relay_state != None:
+                        self.__relay_state = relay_state
+                        for relay_id, state in self.__relay_state.items():
+                            self.set_relay(relay_id, state)
+                    return True
+                else:
+                    return False        
+        else:
+            return False
+        
     # Helpers =========================================================================================================    
     def __send(self, command):
         

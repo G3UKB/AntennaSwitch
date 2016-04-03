@@ -486,9 +486,10 @@ Antenna Switch Controller
                 _, reason = message.split(':')
                 self.__statusMessage = '**Failed - %s**' % (reason)
             elif 'offline' in message:
-                self.__statusMessage = 'Controller if offline! - attempting reset'
+                self.__statusMessage = 'Controller is offline! - attempting reset'
                 # Try a reset
-                self.__api.resetParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT], self.__state[RELAYS][current_template])
+                if len(self.__current_template) > 0:
+                    self.__api.resetParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT], self.__state[RELAYS][self.__current_template])
             else:
                 # An info message
                 self.__statusMessage = message
@@ -555,6 +556,14 @@ Antenna Switch Controller
                         self.__state[WINDOW][H] = self.height() + (height - current_height)
                         self.setGeometry(self.__state[WINDOW][X], self.__state[WINDOW][Y], self.__state[WINDOW][W], self.__state[WINDOW][H])
                         self.setFixedSize(self.__state[WINDOW][W], self.__state[WINDOW][H])
+                        
+            # Check online state
+            if len(self.__current_template) > 0:
+                if self.__api.is_online(self.__state[RELAYS][self.__current_template]):
+                    self.__statusMessage = 'Connected'
+                else:
+                    self.__statusMessage = 'Disconnected'
+            
         # Set next idle time    
         QtCore.QTimer.singleShot(IDLE_TICKER, self.__idleProcessing)
     
