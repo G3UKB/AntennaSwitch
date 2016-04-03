@@ -61,6 +61,8 @@ class AntControl :
         self.__callback = callback
         # Current state of relays
         self.__relay_state = relay_state
+        # Socker
+        self.__sock =  None
         
         if self.__ready:
             # Create UDP socket
@@ -83,6 +85,10 @@ class AntControl :
         self.__ip = ip
         self.__port = int(port)
         self.__ready = True
+        if self.__sock != None:
+           self.__sock.close()
+        # Create UDP socket
+        self.__sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # Set the relays according to the state
         if self.__relay_state != None:
             for relay_id, state in self.__relay_state.items():

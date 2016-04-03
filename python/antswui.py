@@ -402,7 +402,7 @@ Antenna Switch Controller
         
         if what == CONFIG_NETWORK:
             self.__temp_settings[ARDUINO_SETTINGS][NETWORK][IP] = data[IP]
-            self.__temp_settings[ARDUINO_SETTINGS][NETWORK][PORT] = data[PORT]            
+            self.__temp_settings[ARDUINO_SETTINGS][NETWORK][PORT] = data[PORT]
         elif what == CONFIG_EDIT_ADD_HOTSPOT:
             self.__temp_settings[RELAY_SETTINGS] = data
         elif what == CONFIG_DELETE_HOTSPOT:
