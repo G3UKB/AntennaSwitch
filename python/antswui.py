@@ -115,8 +115,16 @@ class AntSwUI(QtGui.QMainWindow):
         """ Configure the GUI interface """
         
         self.setToolTip('Antenna Switch Controller')
-        self.statusBar().setStyleSheet("QStatusBar {color: rgb(60,60,60);font: bold 12px}")
-        self.statusBar().showMessage('')
+        
+        # Create a status bar with 2 fields
+        self.statusbar = QtGui.QStatusBar()
+        self.statusmon = QtGui.QLabel('')
+        self.statusbar.addPermanentWidget(self.statusmon)
+        self.statusmsg = QtGui.QLabel('')
+        self.statusbar.addPermanentWidget(self.statusmsg, stretch=1)
+        self.setStatusBar(self.statusbar)
+        
+        # Set the tooltip font
         QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
         
         # Arrange window
@@ -542,7 +550,8 @@ Antenna Switch Controller
             # Button state
             
             # Status bar
-            self.statusBar().showMessage(self.__statusMessage)
+            #self.statusBar().showMessage(self.__statusMessage)
+            self.statusmsg.setText(self.__statusMessage)
             
             # Window size
             width, height = self.__image_widget.get_dims()
@@ -560,9 +569,11 @@ Antenna Switch Controller
             # Check online state
             if len(self.__current_template) > 0:
                 if self.__api.is_online(self.__state[RELAYS][self.__current_template]):
-                    self.__statusMessage = 'Connected'
+                    self.statusmon.setText('Connected')
+                    self.statusmon.setStyleSheet("QLabel {color: green;font: bold 12px}")
                 else:
-                    self.__statusMessage = 'Disconnected'
+                    self.statusmon.setText('Disconnected')
+                    self.statusmon.setStyleSheet("QLabel {color: red;font: bold 12px}")
             
         # Set next idle time    
         QtCore.QTimer.singleShot(IDLE_TICKER, self.__idleProcessing)
