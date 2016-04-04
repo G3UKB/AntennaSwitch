@@ -488,7 +488,7 @@ Antenna Switch Controller
         try:
             if 'success' in message:
                 # Completed, so reset
-                self.__statusMessage = 'Finished'
+                self.__statusMessage = ''
             elif 'failure' in message:
                 # Error, so reset
                 _, reason = message.split(':')

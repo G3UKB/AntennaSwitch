@@ -177,10 +177,11 @@ class AntControl :
         if not self.__ready:
             return False
         
-        self.__send('ping')
+        self.__sock.sendto(bytes('ping', "utf-8"), (self.__ip, self.__port))
         try:
-            sock.settimeout(2)
-            data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes            
+            self.__sock.settimeout(2)
+            data, addr = self.__sock.recvfrom(1024) # buffer size is 1024 bytes
+            return True
         except socket.timeout:
             # Server didn't respond
             return False
