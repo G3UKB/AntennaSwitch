@@ -143,6 +143,9 @@ I_TAB_ARDUINO = 0
 # Status messsages
 TICKS_TO_CLEAR = 50
 
+# Connected poll
+POLL_TICKS = 50
+
 # Idle ticker
 IDLE_TICKER = 100 # ms
 

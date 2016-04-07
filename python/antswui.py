@@ -65,6 +65,10 @@ class AntSwUI(QtGui.QMainWindow):
         self.__lastStatus = ''
         self.__statusMessage = ''
         self.__temp_settings = None
+        self.__temp_state = None
+        # Nominally 50 ticks == 5s
+        self.__tickcount = TICKS_TO_CLEAR
+        self.__pollcount = POLL_TICKS
         
         # Retrieve settings and state ( see common.py DEFAULTS for strcture)
         self.__settings = persist.getSavedCfg(SETTINGS_PATH)
@@ -333,6 +337,7 @@ Antenna Switch Controller
         self.__image_widget.set_mode(MODE_CONFIG)
         # Create a temporary setting structure
         self.__temp_settings = copy.deepcopy(self.__settings)
+        self.__temp_state = copy.deepcopy(self.__state)
         # Show the dialog. This makes it non-modal
         self.__config_dialog.show()
                 
@@ -417,7 +422,9 @@ Antenna Switch Controller
             self.__temp_settings[RELAY_SETTINGS] = data
         elif what == CONFIG_ACCEPT:
             self.__settings = copy.deepcopy(self.__temp_settings)
+            self.__state = copy.deepcopy(self.__temp_state)
             self.__temp_settings = None
+            self.__temp_state = None
             if self.__settings[ARDUINO_SETTINGS][NETWORK][IP] != None and self.__settings[ARDUINO_SETTINGS][NETWORK][PORT] != None:
                 self.__api.resetParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT])
             persist.saveCfg(SETTINGS_PATH, self.__settings)
@@ -428,19 +435,20 @@ Antenna Switch Controller
             # Just forget the changes
             self.__image_widget.set_mode(MODE_RUNTIME)
             self.__temp_settings = None
+            self.__temp_state = None
         elif what == CONFIG_NEW_TEMPLATE:
             current_template, relay_settings = data
             self.__temp_settings[RELAY_SETTINGS] = relay_settings
             for template in relay_settings:
-                if template not in self.__state[RELAYS]:
-                    self.__state[RELAYS][template] = {1: 'relayoff', 2: 'relayoff', 3: 'relayoff', 4: 'relayoff', 5: 'relayoff', 6: 'relayoff', 7: 'relayoff', 8: 'relayoff'}
+                if template not in self.__temp_state[RELAYS]:
+                    self.__temp_state[RELAYS][template] = {1: 'relayoff', 2: 'relayoff', 3: 'relayoff', 4: 'relayoff', 5: 'relayoff', 6: 'relayoff', 7: 'relayoff', 8: 'relayoff'}
         elif what == CONFIG_SEL_TEMPLATE:
             current_template, relay_settings = data
             self.__current_template = current_template
             # Set the new image
             self.__image_widget.set_new_image(os.path.join(self.__settings[TEMPLATE_PATH], current_template))
             # and set the hotspots 
-            self.__image_widget.config(relay_settings[current_template], self.__state[RELAYS][current_template])
+            self.__image_widget.config(relay_settings[current_template], self.__temp_state[RELAYS][current_template])
             # Change the label
             self.templatelabel.setText('Template: %s' % (self.__current_template))
             # Set the macro buttons
@@ -449,8 +457,8 @@ Antenna Switch Controller
             current_template, relay_settings = data
             self.__temp_settings[RELAY_SETTINGS] = relay_settings
             # Delete the state for this template
-            if current_template in self.__state[RELAYS]:
-                del self.__state[RELAYS][current_template]
+            if current_template in self.__temp_state[RELAYS]:
+                del self.__temp_state[RELAYS][current_template]
             # Another template should immediately be selected (if there is one)
             self.__current_template = ''
             
@@ -543,8 +551,9 @@ Antenna Switch Controller
                 # We have no settings so user must configure first
                 QtGui.QMessageBox.information(self, 'Configuration Required', msg, QtGui.QMessageBox.Ok)
             
-            # Make sure the status gets cleared
-            self.__tickcount = 50
+            # Make sure the status gets cleared and we poll straight away
+            self.__tickcount = TICKS_TO_CLEAR
+            self.__pollcount = POLL_TICKS
         else:
             # Runtime ====================================================
             # Button state
@@ -568,12 +577,15 @@ Antenna Switch Controller
                         
             # Check online state
             if len(self.__current_template) > 0:
-                if self.__api.is_online(self.__state[RELAYS][self.__current_template]):
-                    self.statusmon.setText('Connected')
-                    self.statusmon.setStyleSheet("QLabel {color: green;font: bold 12px}")
-                else:
-                    self.statusmon.setText('Disconnected')
-                    self.statusmon.setStyleSheet("QLabel {color: red;font: bold 12px}")
+                self.__pollcount += 1
+                if self.__pollcount >= POLL_TICKS:
+                    self.__pollcount = 0
+                    if self.__api.is_online(self.__state[RELAYS][self.__current_template]):
+                        self.statusmon.setText('Connected')
+                        self.statusmon.setStyleSheet("QLabel {color: green;font: bold 12px}")
+                    else:
+                        self.statusmon.setText('Disconnected')
+                        self.statusmon.setStyleSheet("QLabel {color: red;font: bold 12px}")
             
         # Set next idle time    
         QtCore.QTimer.singleShot(IDLE_TICKER, self.__idleProcessing)
