@@ -149,6 +149,10 @@ POLL_TICKS = 50
 # Idle ticker
 IDLE_TICKER = 100 # ms
 
+# External command port
+EXT_UDP_IP = '127.0.0.1'
+EXT_UDP_PORT = 10000
+
 # ======================================================================================
 # GRAPHICS
 

@@ -69,6 +69,8 @@ class AntSwUI(QtGui.QMainWindow):
         # Nominally 50 ticks == 5s
         self.__tickcount = TICKS_TO_CLEAR
         self.__pollcount = POLL_TICKS
+        # External command
+        self.__doMacro = None
         
         # Retrieve settings and state ( see common.py DEFAULTS for strcture)
         self.__settings = persist.getSavedCfg(SETTINGS_PATH)
@@ -94,6 +96,10 @@ class AntSwUI(QtGui.QMainWindow):
         else:
             relay_state = None
         self.__api = antcontrol.AntControl(self.__settings[ARDUINO_SETTINGS][NETWORK], relay_state, self.__api_callback)
+        
+        # Create the external command thread
+        self.__extCmd = ExtCmdThrd(self.__extCmdCallback)
+        self.__extCmd.start()
         
         # Initialise the GUI
         self.initUI()
@@ -284,6 +290,10 @@ Antenna Switch Controller
     def quit(self):
         """ User hit quit """
         
+        # Close external thread
+        self.__extCmd.terminate()
+        self.__extCmd.join()
+        
         # Save the current settings
         persist.saveCfg(SETTINGS_PATH, self.__settings)
         self.__state[WINDOW] = [self.x(), self.y(), self.width(), self.height()]
@@ -402,7 +412,7 @@ Antenna Switch Controller
         
         self.__do_exbtn(5)
        
-    # Callback handler ===============================================================================================
+    # Callback handlers ===============================================================================================
     def __config_callback(self, what, data):
         """
         Callback from configurator.
@@ -513,6 +523,19 @@ Antenna Switch Controller
             self.__statusMessage = 'Exception getting status!'
             print('Exception %s' % (str(e)))
 
+    def __extCmdCallback(self, macroId):
+        
+        """
+        Callback from the external command thread.
+        We have been asked to execute a macro switch command.
+        
+        Arguments:
+            macroId --  id of the macro to execute
+            
+        """
+        
+        self.__doMacro = macroId
+        
     # Idle time processing ============================================================================================        
     def __idleProcessing(self):
         
@@ -586,6 +609,11 @@ Antenna Switch Controller
                     else:
                         self.statusmon.setText('Disconnected')
                         self.statusmon.setStyleSheet("QLabel {color: red;font: bold 12px}")
+                        
+            # Check for macro execution
+            if self.__doMacro != None:
+                self.__do_exbtn(self.__doMacro)
+                self.__doMacro = None
             
         # Set next idle time    
         QtCore.QTimer.singleShot(IDLE_TICKER, self.__idleProcessing)
@@ -680,7 +708,49 @@ Antenna Switch Controller
             else:
                 self.__ex_btn_array[button_id].setStyleSheet("QPushButton {background-color: rgb(177,177,177)}")
         
-     
+
+"""
+
+External command thread.
+Receive switch commands from an external program.
+
+"""
+class ExtCmdThrd (threading.Thread):
+    
+    def __init__(self, callback):
+        """
+        Constructor
+        
+        Arguments
+            callback    -- callback here for macro execution
+        """
+
+        super(ExtCmdThrd, self).__init__()
+        
+        self.__sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.__sock.bind((EXT_UDP_IP, EXT_UDP_PORT))
+        self.__sock.settimeout(3)
+        
+        self.__terminate = False
+    
+    def terminate(self):
+        """ Terminate thread """
+        
+        self.__terminate = True
+        
+    def run(self):
+        # We listen on UDP for switch commands
+        while not self.__terminate:
+            data, addr = self.__sock.recvfrom(1024) # buffer size is 1024 bytes
+            asciidata = data.decode(encoding='UTF-8')
+            try:
+                if 'switch' in asciidata:
+                    _, macroId = asciidata.split(':')
+                    macroId = int(macroId)
+                    self.__callback(macroId)
+            except Exception as e:
+                self.__statusMessage = 'Ext cmd failed: {0}'.format(e)   
+
 #======================================================================================================================
 # Main code
 def main():
