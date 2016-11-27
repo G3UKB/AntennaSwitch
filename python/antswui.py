@@ -29,6 +29,8 @@ import string
 from time import sleep
 import copy
 import traceback
+import threading
+import socket
 from PyQt4 import QtCore, QtGui
 
 # Application imports
@@ -741,7 +743,10 @@ class ExtCmdThrd (threading.Thread):
     def run(self):
         # We listen on UDP for switch commands
         while not self.__terminate:
-            data, addr = self.__sock.recvfrom(1024) # buffer size is 1024 bytes
+            try:
+                data, addr = self.__sock.recvfrom(1024) # buffer size is 1024 bytes
+            except socket.timeout:
+                continue
             asciidata = data.decode(encoding='UTF-8')
             try:
                 if 'switch' in asciidata:
