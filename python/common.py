@@ -79,12 +79,16 @@ RUNTIME_RELAY_UPDATE = 'runtimereplayupdate'
 SETTINGS_PATH = os.path.join('..', 'settings', 'ant_control.cfg')
 STATE_PATH = os.path.join('..', 'settings', 'ant_state.cfg')
 
+# Default arduino parameters
+ARDUINO_IP = '192.168.1.178'
+ARDUINO_PORT = '8888'
+
 DEFAULT_SETTINGS = {
     TEMPLATE_PATH: os.path.join('..','templates'), #Path to template files
     ARDUINO_SETTINGS: {
         NETWORK: [
             # ip, port
-            None, None
+            ARDUINO_IP, ARDUINO_PORT,
         ]
     },
     RELAY_SETTINGS: {

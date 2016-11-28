@@ -61,7 +61,7 @@ class AntControl :
         self.__callback = callback
         # Current state of relays
         self.__relay_state = relay_state
-        # Socker
+        # Socket
         self.__sock =  None
         
         self.__online = False

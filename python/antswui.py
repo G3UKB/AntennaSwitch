@@ -584,7 +584,6 @@ Antenna Switch Controller
             # Button state
             
             # Status bar
-            #self.statusBar().showMessage(self.__statusMessage)
             self.statusmsg.setText(self.__statusMessage)
             
             # Window size
@@ -729,6 +728,8 @@ class ExtCmdThrd (threading.Thread):
 
         super(ExtCmdThrd, self).__init__()
         
+        self.__callback = callback
+        
         self.__sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.__sock.bind((EXT_UDP_IP, EXT_UDP_PORT))
         self.__sock.settimeout(3)
@@ -751,7 +752,8 @@ class ExtCmdThrd (threading.Thread):
             try:
                 if 'switch' in asciidata:
                     _, macroId = asciidata.split(':')
-                    macroId = int(macroId)
+                    # The call is zero based but the UI is 1 based
+                    macroId = int(macroId) - 1
                     self.__callback(macroId)
             except Exception as e:
                 self.__statusMessage = 'Ext cmd failed: {0}'.format(e)   
