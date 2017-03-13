@@ -209,6 +209,7 @@ def receive(sock, callback, online):
                 break
     except socket.timeout:
         # Server didn't respond
+        print('Timeout')
         callback('failure: timeout on read!')
     except Exception as e:
         # Something went wrong
