@@ -37,8 +37,11 @@ from PyQt4 import QtCore, QtGui
 from common import *
 import graphics
 import configurationdialog
-import antcontrol
+#import antcontrol
 import persist
+
+sys.path.append(os.path.join('..','..','..','Common','trunk','python'))
+import antcontrol
 
 """
 GUI UI for antenna switch
