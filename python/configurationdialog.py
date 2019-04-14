@@ -24,26 +24,13 @@
 #     bob@bobcowdery.plus.com
 #
 
-# System imports
-import os, sys
-import glob
-import copy
-from PyQt4 import QtCore, QtGui
-from time import sleep
-import traceback
-from os import listdir
-from os.path import isfile, join
-
-# Library imports
-
-
-# Application imports
-from common import *
+# All imports
+from imports import *
 
 """
 Configuration dialog
 """
-class ConfigurationDialog(QtGui.QDialog):
+class ConfigurationDialog(QDialog):
     
     def __init__(self, settings, current_template, config_callback, parent = None):
         """
@@ -69,37 +56,37 @@ class ConfigurationDialog(QtGui.QDialog):
         self.__initUI()
                 
         # Start the idle timer
-        QtCore.QTimer.singleShot(100, self.__idleProcessing)
+        QTimer.singleShot(100, self.__idleProcessing)
     
     # UI initialisation ===============================================================================================
     def __initUI(self):
         """ Configure the GUI interface """
         
         # Set the back colour
-        palette = QtGui.QPalette()
-        palette.setColor(QtGui.QPalette.Background,QtGui.QColor(195,195,195,255))
+        palette = QPalette()
+        palette.setColor(QPalette.Background,QColor(195,195,195,255))
         self.setPalette(palette)
 
         self.setWindowTitle('Configuration')
         
         # Set up the tabs
-        self.top_tab_widget = QtGui.QTabWidget()
-        arduinotab = QtGui.QWidget()
-        relaytab = QtGui.QWidget()
+        self.top_tab_widget = QTabWidget()
+        arduinotab = QWidget()
+        relaytab = QWidget()
         
         self.top_tab_widget.addTab(arduinotab, "Arduino")
         self.top_tab_widget.addTab(relaytab, "Relays")
         self.top_tab_widget.currentChanged.connect(self.onTab)        
         
         # Add the top layout to the dialog
-        top_layout = QtGui.QGridLayout(self)
+        top_layout = QGridLayout(self)
         top_layout.addWidget(self.top_tab_widget, 0, 0)
         self.setLayout(top_layout)
 
         # Set layouts for top tab
-        arduinogrid = QtGui.QGridLayout()
+        arduinogrid = QGridLayout()
         arduinotab.setLayout(arduinogrid)
-        relaygrid = QtGui.QGridLayout()
+        relaygrid = QGridLayout()
         relaytab.setLayout(relaygrid)  
         
         # Add the arduino layout to the dialog
@@ -111,7 +98,7 @@ class ConfigurationDialog(QtGui.QDialog):
         # Add common buttons
         self.__populateCommon(top_layout, 1, 0, 1, 1)
         
-        self.__status_bar = QtGui.QStatusBar()
+        self.__status_bar = QStatusBar()
         top_layout.addWidget(self.__status_bar, 2,0)
         self.__status_bar.setStyleSheet("QStatusBar {color: rgb(60,60,60);font: bold 12px}")
         self.__status_bar.showMessage('')
@@ -126,10 +113,10 @@ class ConfigurationDialog(QtGui.QDialog):
         """
         
         # Add instructions
-        usagelabel = QtGui.QLabel('Usage:')
+        usagelabel = QLabel('Usage:')
         usagelabel.setStyleSheet("QLabel {color: rgb(0,64,128); font: 11px}")
         grid.addWidget(usagelabel, 0, 0)
-        instlabel = QtGui.QLabel()
+        instlabel = QLabel()
         instructions = """
 Set the IP address and port to the listening IP/port of the Arduino.
         """
@@ -139,9 +126,9 @@ Set the IP address and port to the listening IP/port of the Arduino.
         
         # Add control items
         # IP selection
-        iplabel = QtGui.QLabel('Arduino IP')
+        iplabel = QLabel('Arduino IP')
         grid.addWidget(iplabel, 1, 0)
-        self.iptxt = QtGui.QLineEdit()
+        self.iptxt = QLineEdit()
         self.iptxt.setToolTip('Listening IP of Arduino')
         self.iptxt.setInputMask('000.000.000.000;_')
         self.iptxt.setMaximumWidth(100)
@@ -151,9 +138,9 @@ Set the IP address and port to the listening IP/port of the Arduino.
             self.iptxt.setText(self.__settings[ARDUINO_SETTINGS][NETWORK][IP])
         
         # Port selection
-        portlabel = QtGui.QLabel('Arduino Port')
+        portlabel = QLabel('Arduino Port')
         grid.addWidget(portlabel, 2, 0)
-        self.porttxt = QtGui.QLineEdit()
+        self.porttxt = QLineEdit()
         self.porttxt.setToolTip('Listening port of Arduino')
         self.porttxt.setInputMask('00000;_')
         self.porttxt.setMaximumWidth(100)
@@ -162,9 +149,9 @@ Set the IP address and port to the listening IP/port of the Arduino.
         if len(self.__settings[ARDUINO_SETTINGS][NETWORK]) > 0:
             self.porttxt.setText(self.__settings[ARDUINO_SETTINGS][NETWORK][PORT])
         
-        nulllabel = QtGui.QLabel('')
+        nulllabel = QLabel('')
         grid.addWidget(nulllabel, 3, 0, 1, 2)
-        nulllabel1 = QtGui.QLabel('')
+        nulllabel1 = QLabel('')
         grid.addWidget(nulllabel1, 0, 2)
         grid.setRowStretch(3, 1)
         grid.setColumnStretch(2, 1)
@@ -179,10 +166,10 @@ Set the IP address and port to the listening IP/port of the Arduino.
         """
         
         # Add instructions
-        usagelabel = QtGui.QLabel('Usage:')
+        usagelabel = QLabel('Usage:')
         usagelabel.setStyleSheet("QLabel {color: rgb(0,64,128); font: 11px}")
         grid.addWidget(usagelabel, 0, 0)
-        instlabel = QtGui.QLabel()
+        instlabel = QLabel()
         instructions = """
 Configure template and switch area hot spot
 and the Common/NO/NC switch contacts.
@@ -192,21 +179,21 @@ and the Common/NO/NC switch contacts.
         grid.addWidget(instlabel, 0, 1, 1, 2)
         
         # Template select
-        templatelabel = QtGui.QLabel('Templates')
+        templatelabel = QLabel('Templates')
         grid.addWidget(templatelabel, 1, 0)
-        self.templatecombo = QtGui.QComboBox()
+        self.templatecombo = QComboBox()
         self.__templates = sorted(self.__settings[RELAY_SETTINGS].keys())
         if len(self.__templates) > 0:
             for template in self.__templates:
                 self.templatecombo.addItem(str(template))
             # Select the current item
-            index = self.templatecombo.findText(self.__current_template, QtCore.Qt.MatchFixedString)
+            index = self.templatecombo.findText(self.__current_template, Qt.MatchFixedString)
             if index >= 0:
                  self.templatecombo.setCurrentIndex(index)            
         grid.addWidget(self.templatecombo, 1, 1, 1, 2)
         self.templatecombo.activated.connect(self.__on_template)
         # Template add
-        self.addtemplatebtn = QtGui.QPushButton('Add', self)
+        self.addtemplatebtn = QPushButton('Add', self)
         self.addtemplatebtn.setToolTip('Add a new template')
         self.addtemplatebtn.resize(self.addtemplatebtn .sizeHint())
         self.addtemplatebtn.setMinimumHeight(20)
@@ -215,7 +202,7 @@ and the Common/NO/NC switch contacts.
         grid.addWidget(self.addtemplatebtn, 2, 1)
         self.addtemplatebtn.clicked.connect(self.__add_template)
         # Template delete
-        self.deletetemplatebtn = QtGui.QPushButton('Delete', self)
+        self.deletetemplatebtn = QPushButton('Delete', self)
         self.deletetemplatebtn.setToolTip('Delete selected template')
         self.deletetemplatebtn.resize(self.deletetemplatebtn .sizeHint())
         self.deletetemplatebtn.setMinimumHeight(20)
@@ -225,16 +212,16 @@ and the Common/NO/NC switch contacts.
         self.deletetemplatebtn.clicked.connect(self.__delete_template)  
         
         # Separator line
-        line1 = QtGui.QFrame()
-        line1.setFrameShape(QtGui.QFrame.HLine)
-        line1.setFrameShadow(QtGui.QFrame.Sunken)
+        line1 = QFrame()
+        line1.setFrameShape(QFrame.HLine)
+        line1.setFrameShadow(QFrame.Sunken)
         line1.setStyleSheet("QFrame {background-color: rgb(126,126,126)}")
         grid.addWidget(line1, 3, 0, 1, 3)
         
         # Relay select
-        relaylabel = QtGui.QLabel('Relays')
+        relaylabel = QLabel('Relays')
         grid.addWidget(relaylabel, 4, 0)
-        self.relaycombo = QtGui.QComboBox()
+        self.relaycombo = QComboBox()
         if len(self.__settings[RELAY_SETTINGS]) > 0:
             for key in sorted(self.__settings[RELAY_SETTINGS][self.__templates[0]].keys()):
                 self.relaycombo.addItem(str(key))
@@ -242,21 +229,21 @@ and the Common/NO/NC switch contacts.
         self.relaycombo.activated.connect(self.__on_relay)
         
         # Relay ID
-        idlabel = QtGui.QLabel('Relay ID')
+        idlabel = QLabel('Relay ID')
         grid.addWidget(idlabel, 5, 0)
-        self.idsb = QtGui.QSpinBox(self)
+        self.idsb = QSpinBox(self)
         self.idsb.setRange(1, 8)
         self.idsb.setValue(1)
         grid.addWidget(self.idsb, 5, 1)
         self.idsb.valueChanged.connect(self.__on_id)
         
         # Radio buttons to select the current field for edit
-        self.rbgroup = QtGui.QButtonGroup()
-        self.toplrb = QtGui.QRadioButton('Top Left')
-        self.botrrb = QtGui.QRadioButton('Bottom Right')
-        self.commrb = QtGui.QRadioButton('Common')
-        self.norb = QtGui.QRadioButton('Normally Open')
-        self.ncrb = QtGui.QRadioButton('Normally Closed')
+        self.rbgroup = QButtonGroup()
+        self.toplrb = QRadioButton('Top Left')
+        self.botrrb = QRadioButton('Bottom Right')
+        self.commrb = QRadioButton('Common')
+        self.norb = QRadioButton('Normally Open')
+        self.ncrb = QRadioButton('Normally Closed')
         self.rbgroup.addButton(self.toplrb)
         self.rbgroup.addButton(self.botrrb)
         self.rbgroup.addButton(self.commrb)
@@ -269,24 +256,24 @@ and the Common/NO/NC switch contacts.
         grid.addWidget(self.ncrb, 10, 0)
         
         # Field values
-        self.__topllabel = QtGui.QLabel('')
-        self.__topllabel.setFrameShape(QtGui.QFrame.Box)
+        self.__topllabel = QLabel('')
+        self.__topllabel.setFrameShape(QFrame.Box)
         self.__topllabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
         grid.addWidget(self.__topllabel, 6, 1)        
-        self.__botrlabel = QtGui.QLabel('')
-        self.__botrlabel.setFrameShape(QtGui.QFrame.Box)
+        self.__botrlabel = QLabel('')
+        self.__botrlabel.setFrameShape(QFrame.Box)
         self.__botrlabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
         grid.addWidget(self.__botrlabel, 7, 1)        
-        self.__commlabel = QtGui.QLabel('')
-        self.__commlabel.setFrameShape(QtGui.QFrame.Box)
+        self.__commlabel = QLabel('')
+        self.__commlabel.setFrameShape(QFrame.Box)
         self.__commlabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
         grid.addWidget(self.__commlabel, 8, 1)       
-        self.__nolabel = QtGui.QLabel('')
-        self.__nolabel.setFrameShape(QtGui.QFrame.Box)
+        self.__nolabel = QLabel('')
+        self.__nolabel.setFrameShape(QFrame.Box)
         self.__nolabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
         grid.addWidget(self.__nolabel, 9, 1)        
-        self.__nclabel = QtGui.QLabel('')
-        self.__nclabel.setFrameShape(QtGui.QFrame.Box)
+        self.__nclabel = QLabel('')
+        self.__nclabel.setFrameShape(QFrame.Box)
         self.__nclabel.setStyleSheet("QLabel {color: rgb(255,128,64);font: bold 12px}")
         grid.addWidget(self.__nclabel, 10, 1)
         
@@ -297,7 +284,7 @@ and the Common/NO/NC switch contacts.
             self.__set_coordinates(coords)
         
         # Actions, add/edit, delete
-        self.addbtn = QtGui.QPushButton('Edit/Add', self)
+        self.addbtn = QPushButton('Edit/Add', self)
         self.addbtn.setToolTip('Edit/Add to list')
         self.addbtn.resize(self.addbtn.sizeHint())
         self.addbtn.setMinimumHeight(20)
@@ -306,7 +293,7 @@ and the Common/NO/NC switch contacts.
         grid.addWidget(self.addbtn, 11, 1)
         self.addbtn.clicked.connect(self.__editadd)
         
-        self.delbtn = QtGui.QPushButton('Delete', self)
+        self.delbtn = QPushButton('Delete', self)
         self.delbtn.setToolTip('Delete from list')
         self.delbtn.resize(self.addbtn.sizeHint())
         self.delbtn.setMinimumHeight(20)
@@ -330,9 +317,9 @@ and the Common/NO/NC switch contacts.
         """
         
         # OK and Cancel buttons in a buttonbox
-        self.buttonbox = QtGui.QDialogButtonBox(
-            QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel,
-            QtCore.Qt.Horizontal, self)
+        self.buttonbox = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
+            Qt.Horizontal, self)
         grid.addWidget(self.buttonbox, x, y, cols, rows)
         self.buttonbox.accepted.connect(self.__accept)
         self.buttonbox.rejected.connect(self.__reject)
@@ -461,15 +448,15 @@ and the Common/NO/NC switch contacts.
         template_path = self.__settings[TEMPLATE_PATH]
         files = [f for f in listdir(template_path) if (isfile(join(template_path, f)) and os.path.splitext(f)[1] == '.png' and f not in self.__templates)]
         if len(files) == 0:
-            msg = QtGui.QMessageBox()
-            msg.setIcon(QtGui.QMessageBox.Information)        
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)        
             msg.setText('There are no new templates!')
             msg.setWindowTitle('Add Template')
             msg.setDetailedText("To add a new template:\n  1. Create a .png image file of the layout.\n  2. Add the file to the templates directory.")
-            msg.setStandardButtons(QtGui.QMessageBox.Ok)
+            msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
         else:
-            item, ok = QtGui.QInputDialog.getItem(self, "Select Template", "Template", files, 0, False)
+            item, ok = QInputDialog.getItem(self, "Select Template", "Template", files, 0, False)
             if ok:
                 # Add new template to the combo
                 self.templatecombo.addItem(item)
@@ -487,10 +474,10 @@ and the Common/NO/NC switch contacts.
         """ Delete the selected template """
         
         # Be polite, ask user
-        reply = QtGui.QMessageBox.question(self, 'Delete',
-            "Are you sure you want to delete template %s and all its state?\nNote this will not remove the template file itself." % (self.__current_template), QtGui.QMessageBox.Yes | 
-            QtGui.QMessageBox.No, QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.Yes:
+        reply = QMessageBox.question(self, 'Delete',
+            "Are you sure you want to delete template %s and all its state?\nNote this will not remove the template file itself." % (self.__current_template), QMessageBox.Yes | 
+            QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
             # Remove from the relay structure
             if self.__current_template in self.__relay_settings:
                 del self.__relay_settings[self.__current_template]
@@ -614,7 +601,7 @@ and the Common/NO/NC switch contacts.
         else:
             self.deletetemplatebtn.setEnabled(False)
             
-        QtCore.QTimer.singleShot(100, self.__idleProcessing)
+        QTimer.singleShot(100, self.__idleProcessing)
         
     # Helpers =========================================================================================================
     

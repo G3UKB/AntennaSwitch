@@ -23,8 +23,8 @@
 #     bob@bobcowdery.plus.com
 #
 
-# System imports
-import os,sys
+# All imports
+from imports import *
 
 # Application imports
 

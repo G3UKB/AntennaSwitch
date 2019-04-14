@@ -23,15 +23,8 @@
 #     bob@bobcowdery.plus.com
 #
 
-# System imports
-import os, sys
-import traceback
-
-# Library imports
-from PyQt4 import QtCore, QtGui
-
-# Application imports
-from common import *
+# All imports
+from imports import *
 
 """
 
@@ -47,7 +40,7 @@ from common import *
 
 """
 
-class HotImageWidget(QtGui.QWidget):
+class HotImageWidget(QWidget):
     
     def __init__(self, image_path, runtime_callback, config_callback):
         """
@@ -184,7 +177,7 @@ class HotImageWidget(QtGui.QWidget):
             
         """
         
-        qp = QtGui.QPainter()
+        qp = QPainter()
         qp.begin(self)
         self.drawWidget(qp)
         qp.end()
@@ -199,24 +192,24 @@ class HotImageWidget(QtGui.QWidget):
         """
         
         # The widget is just the image
-        pix = QtGui.QPixmap(self.__image_path)
+        pix = QPixmap(self.__image_path)
         self.__width = pix.width()
         self.__height = pix.height()
-        qp.eraseRect(QtCore.QRect(0,0,self.__width,self.__height))
+        qp.eraseRect(QRect(0,0,self.__width,self.__height))
         
         # Take the whole allocated area
         qp.drawPixmap(0,0,pix)
         
         # See if we need to draw switch positions
         for id, position in self.__draw_switch_positions.items():
-            pen = QtGui.QPen(QtGui.QColor(255, 0, 0))
+            pen = QPen(QColor(255, 0, 0))
             pen.setWidth(2)
             qp.setPen(pen)
             if position[0][0] != None and position[0][1] != None and position[1][0] != None and position[1][1] != None:
                 qp.drawLine(position[0][0], position[0][1], position[1][0], position[1][1])               
         # See if we need to highlight a hotspot
         if self.__current_hotspot != None:
-            pen = QtGui.QPen(QtGui.QColor(255, 0, 0))
+            pen = QPen(QColor(255, 0, 0))
             pen.setWidth(2)
             qp.setPen(pen)
             qp.drawRect(self.__current_hotspot[CONFIG_HOTSPOT_TOPLEFT][X] - 3,
@@ -235,10 +228,10 @@ class HotImageWidget(QtGui.QWidget):
         """
         
         # Actions on mouse position
-        if event.type() == QtCore.QEvent.MouseMove:
+        if event.type() == QEvent.MouseMove:
             if self.__mode == MODE_CONFIG:
                 # Just report the position
-                if event.button() == QtCore.Qt.NoButton:
+                if event.button() == Qt.NoButton:
                     self.__config_callback(EVNT_POS, (event.pos().x(), event.pos().y()))
             elif self.__mode == MODE_RUNTIME:
                 # See if we have entered or left a hotspot
@@ -251,13 +244,13 @@ class HotImageWidget(QtGui.QWidget):
                         self.repaint()
         
         # Action on mouse buttons       
-        if event.type() == QtCore.QEvent.MouseButtonPress:
+        if event.type() == QEvent.MouseButtonPress:
             if self.__mode == MODE_CONFIG:
                 # Just report the clicked position, left button only
-                if event.button() == QtCore.Qt.LeftButton:
+                if event.button() == Qt.LeftButton:
                     self.__config_callback(EVNT_LEFT, (event.pos().x(), event.pos().y()))
             elif self.__mode == MODE_RUNTIME:
-                if event.button() == QtCore.Qt.LeftButton:
+                if event.button() == Qt.LeftButton:
                     # Switch the relay state
                     id, hotspot = self.__locate(event.pos())
                     if id != -1:
@@ -271,7 +264,7 @@ class HotImageWidget(QtGui.QWidget):
                         self.repaint()
                         self.__runtime_callback(RUNTIME_RELAY_UPDATE, (id, contact_state))
                         
-        return QtGui.QMainWindow.eventFilter(self, source, event)
+        return QMainWindow.eventFilter(self, source, event)
 
 # Helpers
 #==========================================================================================

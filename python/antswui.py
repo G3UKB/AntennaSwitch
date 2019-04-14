@@ -23,29 +23,13 @@
 #     bob@bobcowdery.plus.com
 #
 
-# System imports
-import os,sys
-import string
-from time import sleep
-import copy
-import traceback
-import threading
-import socket
-from PyQt4 import QtCore, QtGui
-
-# Application imports
-from common import *
-import graphics
-import configurationdialog
-import persist
-
-sys.path.append(os.path.join('..','..','..','Common','trunk','python'))
-import antcontrol
+# All imports
+from imports import *
 
 """
 GUI UI for antenna switch
 """
-class AntSwUI(QtGui.QMainWindow):
+class AntSwUI(QMainWindow):
     
     def __init__(self, qt_app):
         """
@@ -61,8 +45,8 @@ class AntSwUI(QtGui.QMainWindow):
         self.__qt_app = qt_app
         
         # Set the back colour
-        palette = QtGui.QPalette()
-        palette.setColor(QtGui.QPalette.Background,QtGui.QColor(195,195,195,255))
+        palette = QPalette()
+        palette.setColor(QPalette.Background,QColor(195,195,195,255))
         self.setPalette(palette)
         
         # Class variables
@@ -116,7 +100,7 @@ class AntSwUI(QtGui.QMainWindow):
         self.__startup = True
         
         # Start idle processing
-        QtCore.QTimer.singleShot(IDLE_TICKER, self.__idleProcessing)
+        QTimer.singleShot(IDLE_TICKER, self.__idleProcessing)
     
     def run(self, ):
         """ Run the application """
@@ -131,30 +115,30 @@ class AntSwUI(QtGui.QMainWindow):
         self.setToolTip('Antenna Switch Controller')
         
         # Create a status bar with 2 fields
-        self.statusbar = QtGui.QStatusBar()
-        self.statusmon = QtGui.QLabel('')
+        self.statusbar = QStatusBar()
+        self.statusmon = QLabel('')
         self.statusbar.addPermanentWidget(self.statusmon)
-        self.statusmsg = QtGui.QLabel('')
+        self.statusmsg = QLabel('')
         self.statusbar.addPermanentWidget(self.statusmsg, stretch=1)
         self.setStatusBar(self.statusbar)
         
         # Set the tooltip font
-        QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
+        QToolTip.setFont(QFont('SansSerif', 10))
         
         # Arrange window
         self.move(100, 100)
         self.setWindowTitle('Antenna/Rig Flexi-Switch')
         
         # Configure Menu
-        aboutAction = QtGui.QAction(QtGui.QIcon('about.png'), '&About', self)        
+        aboutAction = QAction(QIcon('about.png'), '&About', self)        
         aboutAction.setShortcut('Ctrl+A')
         aboutAction.setStatusTip('About')
         aboutAction.triggered.connect(self.about)
-        exitAction = QtGui.QAction(QtGui.QIcon('exit.png'), '&Exit', self)        
+        exitAction = QAction(QIcon('exit.png'), '&Exit', self)        
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Quit application')
         exitAction.triggered.connect(self.quit)
-        configAction = QtGui.QAction(QtGui.QIcon('config.png'), '&Configuration', self)        
+        configAction = QAction(QIcon('config.png'), '&Configuration', self)        
         configAction.setShortcut('Ctrl+C')
         configAction.setStatusTip('Configure controller')
         configAction.triggered.connect(self.__configEvnt)
@@ -168,14 +152,14 @@ class AntSwUI(QtGui.QMainWindow):
         helpMenu.addAction(aboutAction)
         
         # Set layout
-        w = QtGui.QWidget()
+        w = QWidget()
         self.setCentralWidget(w)
-        self.__grid = QtGui.QGridLayout()
+        self.__grid = QGridLayout()
         w.setLayout(self.__grid)
 
         # Configure the macro buttons
-        macro_grid = QtGui.QGridLayout()
-        macro_widget = QtGui.QWidget()
+        macro_grid = QGridLayout()
+        macro_widget = QWidget()
         self.__grid.addWidget(macro_widget, 0, 0)
         macro_widget.setLayout(macro_grid)
         # We want an array of 6 buttons for both set and execute
@@ -183,50 +167,50 @@ class AntSwUI(QtGui.QMainWindow):
         self.__set_btn_array = [None] * 6
         self.__ex_btn_array = [None] * 6
         # 1
-        self.__set_btn_array[0] = QtGui.QPushButton('Set', self)
+        self.__set_btn_array[0] = QPushButton('Set', self)
         macro_grid.addWidget(self.__set_btn_array[0], 0, 0)
         self.__set_btn_array[0].clicked.connect(self.on_set1btn)
-        self.__ex_btn_array[0] = QtGui.QPushButton('1', self)
+        self.__ex_btn_array[0] = QPushButton('1', self)
         macro_grid.addWidget(self.__ex_btn_array[0], 1, 0)
         self.__ex_btn_array[0].clicked.connect(self.on_ex1btn)
         self.__ex_btn_array[0].setEnabled(False)
         # 2
-        self.__set_btn_array[1] = QtGui.QPushButton('Set', self)
+        self.__set_btn_array[1] = QPushButton('Set', self)
         macro_grid.addWidget(self.__set_btn_array[1], 0, 1)
         self.__set_btn_array[1].clicked.connect(self.on_set2btn)
-        self.__ex_btn_array[1] = QtGui.QPushButton('2', self)
+        self.__ex_btn_array[1] = QPushButton('2', self)
         macro_grid.addWidget(self.__ex_btn_array[1], 1, 1)
         self.__ex_btn_array[1].clicked.connect(self.on_ex2btn)
         self.__ex_btn_array[1].setEnabled(False)
         # 3
-        self.__set_btn_array[2] = QtGui.QPushButton('Set', self)
+        self.__set_btn_array[2] = QPushButton('Set', self)
         macro_grid.addWidget(self.__set_btn_array[2], 0, 2)
         self.__set_btn_array[2].clicked.connect(self.on_set3btn)
-        self.__ex_btn_array[2] = QtGui.QPushButton('3', self)
+        self.__ex_btn_array[2] = QPushButton('3', self)
         macro_grid.addWidget(self.__ex_btn_array[2], 1, 2)
         self.__ex_btn_array[2].clicked.connect(self.on_ex3btn)
         self.__ex_btn_array[2].setEnabled(False)
         # 4
-        self.__set_btn_array[3] = QtGui.QPushButton('Set', self)
+        self.__set_btn_array[3] = QPushButton('Set', self)
         macro_grid.addWidget(self.__set_btn_array[3], 0, 3)
         self.__set_btn_array[3].clicked.connect(self.on_set4btn)
-        self.__ex_btn_array[3] = QtGui.QPushButton('4', self)
+        self.__ex_btn_array[3] = QPushButton('4', self)
         macro_grid.addWidget(self.__ex_btn_array[3], 1, 3)
         self.__ex_btn_array[3].clicked.connect(self.on_ex4btn)
         self.__ex_btn_array[3].setEnabled(False)
         # 5
-        self.__set_btn_array[4] = QtGui.QPushButton('Set', self)
+        self.__set_btn_array[4] = QPushButton('Set', self)
         macro_grid.addWidget(self.__set_btn_array[4], 0, 4)
         self.__set_btn_array[4].clicked.connect(self.on_set5btn)
-        self.__ex_btn_array[4] = QtGui.QPushButton('5', self)
+        self.__ex_btn_array[4] = QPushButton('5', self)
         macro_grid.addWidget(self.__ex_btn_array[4], 1, 4)
         self.__ex_btn_array[4].clicked.connect(self.on_ex5btn)
         self.__ex_btn_array[4].setEnabled(False)
         # 6
-        self.__set_btn_array[5] = QtGui.QPushButton('Set', self)
+        self.__set_btn_array[5] = QPushButton('Set', self)
         macro_grid.addWidget(self.__set_btn_array[5], 0, 5)
         self.__set_btn_array[5].clicked.connect(self.on_set6btn)
-        self.__ex_btn_array[5] = QtGui.QPushButton('6', self)
+        self.__ex_btn_array[5] = QPushButton('6', self)
         macro_grid.addWidget(self.__ex_btn_array[5], 1, 5)
         self.__ex_btn_array[5].clicked.connect(self.on_ex6btn)
         self.__ex_btn_array[5].setEnabled(False)
@@ -235,14 +219,14 @@ class AntSwUI(QtGui.QMainWindow):
             self.__ex_btn_array[button_id].setStyleSheet("QPushButton {background-color: rgb(177,177,177)}")
         
         # Configure template indicator
-        self.templatelabel = QtGui.QLabel('Template: %s' % (self.__current_template))
+        self.templatelabel = QLabel('Template: %s' % (self.__current_template))
         self.templatelabel.setStyleSheet("QLabel {color: rgb(60,60,60); font: 16px; qproperty-alignment: AlignCenter}")
         self.__grid.addWidget(self.templatelabel, 1, 0)
         
         # Separator line
-        line1 = QtGui.QFrame()
-        line1.setFrameShape(QtGui.QFrame.HLine)
-        line1.setFrameShadow(QtGui.QFrame.Sunken)
+        line1 = QFrame()
+        line1.setFrameShape(QFrame.HLine)
+        line1.setFrameShadow(QFrame.Sunken)
         line1.setStyleSheet("QFrame {background-color: rgb(126,126,126)}")
         self.__grid.addWidget(line1, 2, 0)
 
@@ -257,12 +241,12 @@ class AntSwUI(QtGui.QMainWindow):
             self.__image_widget.config(self.__settings[RELAY_SETTINGS][self.__current_template], self.__state[RELAYS][self.__current_template])
         
         # Configure Quit
-        line2 = QtGui.QFrame()
-        line2.setFrameShape(QtGui.QFrame.HLine)
-        line2.setFrameShadow(QtGui.QFrame.Sunken)
+        line2 = QFrame()
+        line2.setFrameShape(QFrame.HLine)
+        line2.setFrameShadow(QFrame.Sunken)
         line2.setStyleSheet("QFrame {background-color: rgb(126,126,126)}")
         self.__grid.addWidget(line2, 4, 0)
-        self.quitbtn = QtGui.QPushButton('Quit', self)
+        self.quitbtn = QPushButton('Quit', self)
         self.quitbtn.setToolTip('Quit program')
         self.quitbtn.resize(self.quitbtn.sizeHint())
         self.quitbtn.setMinimumHeight(20)
@@ -289,7 +273,7 @@ Antenna Switch Controller
     by Bob Cowdery (G3UKB)
     email:  bob@bobcowdery.plus.com
 """
-        QtGui.QMessageBox.about(self, 'About', text)
+        QMessageBox.about(self, 'About', text)
                
     def quit(self):
         """ User hit quit """
@@ -311,7 +295,7 @@ Antenna Switch Controller
         #Probably not a great idea as it could remove an antenna while TXing
         # self.__api.reset_relays()
         # Close
-        QtCore.QCoreApplication.instance().quit()
+        QCoreApplication.instance().quit()
     
     def closeEvent(self, event):
         """
@@ -323,10 +307,10 @@ Antenna Switch Controller
         """
         
         # Be polite, ask user
-        reply = QtGui.QMessageBox.question(self, 'Quit?',
-            "Quit application?", QtGui.QMessageBox.Yes | 
-            QtGui.QMessageBox.No, QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.Yes:
+        reply = QMessageBox.question(self, 'Quit?',
+            "Quit application?", QMessageBox.Yes | 
+            QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
             self.quit()
         else:
             event.ignore()
@@ -576,7 +560,7 @@ Antenna Switch Controller
                 msg += '\nPlease configure the relay settings.'
             if not settings:
                 # We have no settings so user must configure first
-                QtGui.QMessageBox.information(self, 'Configuration Required', msg, QtGui.QMessageBox.Ok)
+                QMessageBox.information(self, 'Configuration Required', msg, QMessageBox.Ok)
             
             # Make sure the status gets cleared and we poll straight away
             self.__tickcount = TICKS_TO_CLEAR
@@ -619,7 +603,7 @@ Antenna Switch Controller
                 self.__doMacro = None
             
         # Set next idle time    
-        QtCore.QTimer.singleShot(IDLE_TICKER, self.__idleProcessing)
+        QTimer.singleShot(IDLE_TICKER, self.__idleProcessing)
     
     # Helpers =========================================================================================================
     def __setButtonState(self, enabled, widgets):
@@ -675,7 +659,7 @@ Antenna Switch Controller
         # Create/update the macro data
         self.__state[MACROS][self.__current_template][macro_index] = copy.deepcopy(self.__state[RELAYS][self.__current_template])            
         # Set the tooltip
-        tooltip, ok = QtGui.QInputDialog.getText(self, "Configure Button", "Description ")
+        tooltip, ok = QInputDialog.getText(self, "Configure Button", "Description ")
         if ok and len(tooltip) > 0:
             self.__ex_btn_array[macro_index].setToolTip(tooltip)
             self.__state[MACROS][self.__current_template][macro_index][TT] = tooltip
@@ -766,7 +750,7 @@ def main():
     
     try:
         # The one and only QApplication 
-        qt_app = QtGui.QApplication(sys.argv)
+        qt_app = QApplication(sys.argv)
         # Cretae instance
         ant_sw_ui = AntSwUI(qt_app)
         # Run application loop

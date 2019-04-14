@@ -23,9 +23,8 @@
 #     bob@bobcowdery.plus.com
 #
 
-import os,sys
-from PyQt4 import QtCore, QtGui
-import pickle
+# All imports
+from imports import *
 
 """
 Utility functions to get and save configuration and state
@@ -46,7 +45,7 @@ def getSavedCfg(path):
 			cfg = pickle.load(f)
 		except Exception as e:
 			# Error retrieving configuration file
-			QtGui.QMessageBox.information(None, 'Configuration File - Exception','Exception [%s]' % (str(e)), QtGui.QMessageBox.Ok)
+			QMessageBox.information(None, 'Configuration File - Exception','Exception [%s]' % (str(e)), QMessageBox.Ok)
 		finally:
 			try:
 				f.close()
@@ -72,7 +71,7 @@ def saveCfg(path, cfg):
 		pickle.dump(cfg, f)
 	except Exception as e:
 		# Error saving configuration file
-		QtGui.QMessageBox.information(None, 'Configuration File - Exception','Exception [%s]' % (str(e)), QtGui.QMessageBox.Ok)
+		QMessageBox.information(None, 'Configuration File - Exception','Exception [%s]' % (str(e)), QMessageBox.Ok)
 	finally:
 		try:
 			f.close()
