@@ -55,6 +55,7 @@ import graphics
 import configurationdialog
 import persist
 # Common across projects
-sys.path.append(os.path.join('..','..','Common','python'))
+#sys.path.append(os.path.join('..','..','Common','python'))
+sys.path.append(os.path.join('..','..','..','Common','trunk','python'))
 import antcontrol
 
