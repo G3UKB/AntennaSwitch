@@ -193,7 +193,6 @@ class HotImageWidget(QWidget):
         
         # The widget is just the image
         pix = QPixmap(self.__image_path)
-        print(self.__image_path, pix)
         self.__width = pix.width()
         self.__height = pix.height()
         qp.eraseRect(QRect(0,0,self.__width,self.__height))
