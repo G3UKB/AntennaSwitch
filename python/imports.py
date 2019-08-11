@@ -55,7 +55,10 @@ import graphics
 import configurationdialog
 import persist
 # Common across projects
-#sys.path.append(os.path.join('..','..','Common','python'))
-sys.path.append(os.path.join('..','..','..','Common','trunk','python'))
+from sys import platform
+if platform == "linux" or platform == "linux2":
+    sys.path.append(os.path.join('..','..','Common','python'))
+elif platform == "win32":
+    sys.path.append(os.path.join('..','..','..','Common','trunk','python'))
 import antcontrol
 
