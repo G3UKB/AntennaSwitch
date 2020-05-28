@@ -278,10 +278,14 @@ and the Common/NO/NC switch contacts.
         grid.addWidget(self.__nclabel, 10, 1)
         
         # Populate the coordinates
-        if self.relaycombo.currentIndex() != -1:
-            id = int(self.relaycombo.itemText(self.relaycombo.currentIndex()))
-            coords = self.__relay_settings[self.__current_template][id]
-            self.__set_coordinates(coords)
+        try:
+            if self.relaycombo.currentIndex() != -1:
+                id = int(self.relaycombo.itemText(self.relaycombo.currentIndex()))
+                coords = self.__relay_settings[self.__current_template][id]
+                self.__set_coordinates(coords)
+        except:
+            # Forget for now, improper coord map
+            pass
         
         # Actions, add/edit, delete
         self.addbtn = QPushButton('Edit/Add', self)
