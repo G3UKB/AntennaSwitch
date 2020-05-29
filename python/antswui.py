@@ -415,7 +415,6 @@ Antenna Switch Controller
             self.__temp_settings[ARDUINO_SETTINGS][NETWORK][IP] = data[IP]
             self.__temp_settings[ARDUINO_SETTINGS][NETWORK][PORT] = data[PORT]
         elif what == CONFIG_EDIT_ADD_HOTSPOT:
-            print(data)
             self.__temp_settings[RELAY_SETTINGS] = data
         elif what == CONFIG_DELETE_HOTSPOT:
             self.__temp_settings[RELAY_SETTINGS] = data
@@ -591,7 +590,11 @@ Antenna Switch Controller
                 self.__pollcount += 1
                 if self.__pollcount >= POLL_TICKS:
                     self.__pollcount = 0
-                    if self.__api.is_online(self.__state[RELAYS][self.__current_template]):
+                    if len(self.__state[RELAYS]) == 0:
+                        current_state = None
+                    else:
+                        current_state = self.__state[RELAYS][self.__current_template]
+                    if self.__api.is_online(current_state):
                         self.statusmon.setText('Connected')
                         self.statusmon.setStyleSheet("QLabel {color: green;font: bold 12px}")
                     else:

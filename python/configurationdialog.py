@@ -558,7 +558,6 @@ and the Common/NO/NC switch contacts.
         """ User wants to add/edit the current contents """
         
         index = self.relaycombo.findText(str(self.idsb.value()))
-        print(str(self.idsb.value()), index)
         if index == -1:
             self.relaycombo.addItem(str(self.idsb.value()))
         self.relaycombo.setCurrentIndex(self.relaycombo.findText(str(self.idsb.value())))
