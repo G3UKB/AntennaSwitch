@@ -37,7 +37,7 @@ from os.path import isfile, join
 import string
 import threading
 import pprint
-pp = pprint.PrettyPrinter(indent=4)
+pp = pprint.PrettyPrinter(indent=1)
 
 #=====================================================
 # Lib imports
