@@ -232,7 +232,7 @@ and the Common/NO/NC switch contacts.
         idlabel = QLabel('Relay ID')
         grid.addWidget(idlabel, 5, 0)
         self.idsb = QSpinBox(self)
-        self.idsb.setRange(1, 8)
+        self.idsb.setRange(1, 16)
         self.idsb.setValue(1)
         grid.addWidget(self.idsb, 5, 1)
         self.idsb.valueChanged.connect(self.__on_id)
@@ -558,6 +558,7 @@ and the Common/NO/NC switch contacts.
         """ User wants to add/edit the current contents """
         
         index = self.relaycombo.findText(str(self.idsb.value()))
+        print(str(self.idsb.value()), index)
         if index == -1:
             self.relaycombo.addItem(str(self.idsb.value()))
         self.relaycombo.setCurrentIndex(self.relaycombo.findText(str(self.idsb.value())))
