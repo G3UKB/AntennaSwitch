@@ -36,15 +36,23 @@ EthernetUDP Udp;
 //////////////////////////////////////////////////////////////////////////
 // Relay section
 // Pin allocation
-const int relay_base = 1;
-const int relay_1 = 2;
-const int relay_2 = 3;
-const int relay_3 = 4;
-const int relay_4 = 5;
-const int relay_5 = 6;
-const int relay_6 = 7;
-const int relay_7 = 8;
-const int relay_8 = 9;
+const int relay_base = 21;
+const int relay_1 = 1;
+const int relay_2 = 2;
+const int relay_3 = 3;
+const int relay_4 = 4;
+const int relay_5 = 5;
+const int relay_6 = 6;
+const int relay_7 = 7;
+const int relay_8 = 8;
+const int relay_9 = 9;
+const int relay_10 = 10;
+const int relay_11 = 11;
+const int relay_12 = 12;
+const int relay_13 = 13;
+const int relay_14 = 14;
+const int relay_15 = 15;
+const int relay_16 = 16;
 
 //////////////////////////////////////////////////////////////////////////
 // SWR meter section
@@ -60,14 +68,22 @@ void setup() {
   Udp.begin(localPort);
   
   // Configure the pins used to drive the relays
-  pinMode(relay_1, OUTPUT);
-  pinMode(relay_2, OUTPUT);
-  pinMode(relay_3, OUTPUT);
-  pinMode(relay_4, OUTPUT);
-  pinMode(relay_5, OUTPUT);
-  pinMode(relay_6, OUTPUT);
-  pinMode(relay_7, OUTPUT);
-  pinMode(relay_8, OUTPUT);
+  pinMode(relay_base + relay_1, OUTPUT);
+  pinMode(relay_base + relay_2, OUTPUT);
+  pinMode(relay_base + relay_3, OUTPUT);
+  pinMode(relay_base + relay_4, OUTPUT);
+  pinMode(relay_base + relay_5, OUTPUT);
+  pinMode(relay_base + relay_6, OUTPUT);
+  pinMode(relay_base + relay_7, OUTPUT);
+  pinMode(relay_base + relay_8, OUTPUT);
+  pinMode(relay_base + relay_9, OUTPUT);
+  pinMode(relay_base + relay_10, OUTPUT);
+  pinMode(relay_base + relay_11, OUTPUT);
+  pinMode(relay_base + relay_12, OUTPUT);
+  pinMode(relay_base + relay_13, OUTPUT);
+  pinMode(relay_base + relay_14, OUTPUT);
+  pinMode(relay_base + relay_15, OUTPUT);
+  pinMode(relay_base + relay_16, OUTPUT);
   // Relays are active LOW so ensure all are de-energised
   reset_relays();
 
@@ -184,26 +200,35 @@ void execute(char *command) {
 //////////////////////////////////////////////////////////////////////////
 void reset_relays() {
   
-  digitalWrite(relay_1, HIGH);
-  digitalWrite(relay_2, HIGH);
-  digitalWrite(relay_3, HIGH);
-  digitalWrite(relay_4, HIGH);
-  digitalWrite(relay_5, HIGH);
-  digitalWrite(relay_6, HIGH);
-  digitalWrite(relay_7, HIGH);
-  digitalWrite(relay_8, HIGH);
+  digitalWrite(relay_base + relay_1, HIGH);
+  digitalWrite(relay_base + relay_2, HIGH);
+  digitalWrite(relay_base + relay_3, HIGH);
+  digitalWrite(relay_base + relay_4, HIGH);
+  digitalWrite(relay_base + relay_5, HIGH);
+  digitalWrite(relay_base + relay_6, HIGH);
+  digitalWrite(relay_base + relay_7, HIGH);
+  digitalWrite(relay_base + relay_8, HIGH);
+  digitalWrite(relay_base + relay_9, HIGH);
+  digitalWrite(relay_base + relay_10, HIGH);
+  digitalWrite(relay_base + relay_11, HIGH);
+  digitalWrite(relay_base + relay_12, HIGH);
+  digitalWrite(relay_base + relay_13, HIGH);
+  digitalWrite(relay_base + relay_14, HIGH);
+  digitalWrite(relay_base + relay_15, HIGH);
+  digitalWrite(relay_base + relay_16, HIGH);
 }
 
 //////////////////////////////////////////////////////////////////////////
 void energise_relay(int relay_id) {
-  
+  //Serial.println("Energise:");
+  //Serial.println(relay_id);
   digitalWrite(relay_id + relay_base, LOW);
 }
 
 //////////////////////////////////////////////////////////////////////////
 void de_energise_relay(int relay_id) {
-  
+  //Serial.println("Deenergise:");
+  //Serial.println(relay_id);
   digitalWrite(relay_id + relay_base, HIGH);
 }
   
-
