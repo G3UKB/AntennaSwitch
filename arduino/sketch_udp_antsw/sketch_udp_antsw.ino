@@ -6,8 +6,7 @@
 * Hardware used:
 *  Arduino MEGA
 *  Arduino Ethernet Shield
-*  8 Relay Module
-*  TBD VSWR bridge - SOTABEAMS BOXA-SWR High Performance VSWR Bridge                        
+*  16 Relay Module                        
 */
 
 //////////////////////////////////////////////////////////////////////////
