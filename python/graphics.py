@@ -226,7 +226,7 @@ class HotImageWidget(QWidget):
             event   --  event data
             
         """
-        
+
         # Actions on mouse position
         if event.type() == QEvent.MouseMove:
             if self.__mode == MODE_CONFIG:
@@ -263,7 +263,6 @@ class HotImageWidget(QWidget):
                             self.__draw_switch_positions[id] = (((hotspot[CONFIG_HOTSPOT_COMMON][X], hotspot[CONFIG_HOTSPOT_COMMON][Y]), (hotspot[CONFIG_HOTSPOT_NO][X], hotspot[CONFIG_HOTSPOT_NO][Y])))
                         self.repaint()
                         self.__runtime_callback(RUNTIME_RELAY_UPDATE, (id, contact_state))
-                        
         return QMainWindow.eventFilter(self, source, event)
 
 # Helpers
