@@ -56,8 +56,8 @@ const int relay_16 = 16;
 //////////////////////////////////////////////////////////////////////////
 // SWR meter section
 // Pin allocation
-const int fwdPin = 0;
-const int refPin = 1;
+//const int fwdPin = 0;
+//const int refPin = 1;
 
 //////////////////////////////////////////////////////////////////////////
 void setup() {
@@ -101,8 +101,6 @@ void loop() {
     doRead(packetSize);   
     // Execute command
     execute(packetBuffer);
-    // Send response
-    sendResponse();
   }
   delay(10);
 }
@@ -111,11 +109,10 @@ void loop() {
 int queryPacket() {
   
   int packetSize = Udp.parsePacket();
-  if (packetSize) {
+  if (packetSize)
     return packetSize;
-  }
-   else
-     return 0;
+  else
+    return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -135,20 +132,8 @@ int sendResponse() {
   // Send a reply to the IP address and port that sent us the packet we received
   Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
   Udp.write(ReplyBuffer);
-  Udp.endPacket();   
-}
-
-//////////////////////////////////////////////////////////////////////////
-int sendVSWR(int forward, int reflected) {
-
-  // Send a VSWR report to the IP address and port that sent us the packet we received
-  strcpy(StatusBuffer, "vswr:");
-  sprintf(StatusBuffer + strlen(StatusBuffer), "%d", forward);
-  strcpy(StatusBuffer + strlen(StatusBuffer), ":");
-  sprintf(StatusBuffer + strlen(StatusBuffer), "%d", reflected);
-  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());    
-  Udp.write(StatusBuffer);
-  Udp.endPacket();  
+  Udp.endPacket(); 
+  //Serial.println(ReplyBuffer);   
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -157,21 +142,18 @@ void execute(char *command) {
   /*
   * The command set is as follows. Commands are terminated strings.
   * Ping        - "ping"      -  connectivity test
-  * Relay reset - "reset"     -  de-energise all relays
-  * Relay on    - "[1-8]e"    -  energise relay 1-8
-  * Relay off   - "[1-8]d"    -  de-energise relay 1-8
+  * Relay on    - "[1-16]e"    -  energise relay 1-16
+  * Relay off   - "[1-16]d"    -  de-energise relay 1-16
   */ 
     
   char *p;
   int value = 0;
   bool valid = false;
   
-  // Assume success
-  strcpy(ReplyBuffer, "success");
+  // Execute command type
   if (strcmp(command, "ping") == 0) {
-    valid = true;
-  } else if (strcmp(command, "reset") == 0) {
-    reset_relays();
+    strcpy(ReplyBuffer, "awake");
+    sendResponse();
     valid = true;
   } else {
     // A numeric command
@@ -192,7 +174,6 @@ void execute(char *command) {
     // Invalid command
     Serial.println("failure:Invalid command:");
     Serial.println(command);
-    strcpy(ReplyBuffer, "failure:Invalid command");
   }
 }
 
