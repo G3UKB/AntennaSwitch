@@ -54,12 +54,6 @@ const int relay_15 = 15;
 const int relay_16 = 16;
 
 //////////////////////////////////////////////////////////////////////////
-// SWR meter section
-// Pin allocation
-//const int fwdPin = 0;
-//const int refPin = 1;
-
-//////////////////////////////////////////////////////////////////////////
 void setup() {
   
   // Start Ethernet and UDP:
@@ -152,10 +146,8 @@ void execute(char *command) {
   
   // Execute command type
   if (strcmp(command, "ping") == 0) {
-    //Serial.println("ping");
     strcpy(ReplyBuffer, "awake");
     sendResponse();
-    //Serial.println("resp");
     valid = true;
   } else {
     // A numeric command
