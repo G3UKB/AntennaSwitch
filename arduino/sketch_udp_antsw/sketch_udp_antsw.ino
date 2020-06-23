@@ -152,8 +152,10 @@ void execute(char *command) {
   
   // Execute command type
   if (strcmp(command, "ping") == 0) {
+    //Serial.println("ping");
     strcpy(ReplyBuffer, "awake");
     sendResponse();
+    //Serial.println("resp");
     valid = true;
   } else {
     // A numeric command
