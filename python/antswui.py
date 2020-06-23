@@ -282,6 +282,9 @@ Antenna Switch Controller
         self.__extCmd.terminate()
         self.__extCmd.join()
         
+        # Close API
+        self.__api.terminate()
+        
         # Save the current settings
         persist.saveCfg(SETTINGS_PATH, self.__settings)
         self.__state[WINDOW] = [self.x(), self.y(), self.width(), self.height()]
@@ -490,26 +493,15 @@ Antenna Switch Controller
             message --  text to drive the status messages
             
         """
-        
-        try:
-            if 'success' in message:
-                # Completed, so reset
-                self.__statusMessage = ''
-            elif 'failure' in message:
-                # Error, so reset
-                _, reason = message.split(':')
-                self.__statusMessage = '**Failed - %s**' % (reason)
-            elif 'offline' in message:
-                self.__statusMessage = 'Controller is offline! - attempting reset'
-                # Try a reset
-                if len(self.__current_template) > 0:
-                    self.__api.resetParams(self.__settings[ARDUINO_SETTINGS][NETWORK][IP], self.__settings[ARDUINO_SETTINGS][NETWORK][PORT], self.__state[RELAYS][self.__current_template])
-            else:
-                # An info message
-                self.__statusMessage = message
-        except Exception as e:
-            self.__statusMessage = 'Exception getting status!'
-            print('Exception %s' % (str(e)))
+    
+        if message == ONLINE:
+            self.__statusMessage = 'online'
+        elif message == OFFLINE:
+            # Are, or still disconnected
+            self.__statusMessage = 'offline'
+        else:
+            # An info message
+            self.__statusMessage = message
 
     def __extCmdCallback(self, macroId):
         
@@ -585,22 +577,16 @@ Antenna Switch Controller
                         self.setGeometry(self.__state[WINDOW][X], self.__state[WINDOW][Y], self.__state[WINDOW][W], self.__state[WINDOW][H])
                         self.setFixedSize(self.__state[WINDOW][W], self.__state[WINDOW][H])
                         
-            # Check online state
-            if len(self.__current_template) > 0:
-                self.__pollcount += 1
-                if self.__pollcount >= POLL_TICKS:
-                    self.__pollcount = 0
-                    if len(self.__state[RELAYS]) == 0:
-                        current_state = None
-                    else:
-                        current_state = self.__state[RELAYS][self.__current_template]
-                    if self.__api.is_online(current_state):
-                        self.statusmon.setText('Connected')
-                        self.statusmon.setStyleSheet("QLabel {color: green;font: bold 12px}")
-                    else:
-                        self.statusmon.setText('Disconnected')
-                        self.statusmon.setStyleSheet("QLabel {color: red;font: bold 12px}")
-                        
+            # Check online state 
+            if self.__statusMessage == 'online':
+                self.statusmon.setText('Connected')
+                self.statusmon.setStyleSheet("QLabel {color: green;font: bold 12px}")
+            elif self.__statusMessage == 'offline'::
+                self.statusmon.setText('Disconnected')
+                self.statusmon.setStyleSheet("QLabel {color: red;font: bold 12px}")
+            else
+                self.statusmon.setText(self.__statusMessage)
+                
             # Check for macro execution
             if self.__doMacro != None:
                 self.__do_exbtn(self.__doMacro)
