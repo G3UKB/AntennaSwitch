@@ -50,8 +50,9 @@ class AntSwUI(QMainWindow):
         self.setPalette(palette)
         
         # Class variables
-        self.__lastStatus = ''
+        self.__online = False
         self.__statusMessage = ''
+        self.__lastStatus = ''
         self.__temp_settings = None
         self.__temp_state = None
         # Nominally 50 ticks == 5s
@@ -485,7 +486,7 @@ Antenna Switch Controller
             for button_id in range(len(self.__ex_btn_array)):
                 self.__ex_btn_array[button_id].setStyleSheet("QPushButton {background-color: rgb(177,177,177)}")
             
-    def __api_callback(self, message):
+    def __api_callback(self, online, message):
         
         """
         Callback from API. Note that this is not called from
@@ -494,17 +495,17 @@ Antenna Switch Controller
         Qt calls MUST be made from the main thread.
         
         Arguments:
+            online  --  true if connected
             message --  text to drive the status messages
             
         """
     
-        if message == ONLINE:
-            self.__statusMessage = 'online'
-        elif message == OFFLINE:
-            # Are, or still disconnected
-            self.__statusMessage = 'offline'
+        if online:
+            self.__online = True
         else:
-            # An info message
+            self.__online = False
+        
+        if len(message) > 0:
             self.__statusMessage = message
 
     def __extCmdCallback(self, macroId):
@@ -563,11 +564,6 @@ Antenna Switch Controller
             self.__pollcount = POLL_TICKS
         else:
             # Runtime ====================================================
-            # Button state
-            
-            # Status bar
-            self.statusmsg.setText(self.__statusMessage)
-            
             # Window size
             width, height = self.__image_widget.get_dims()
             if width != None and height != None:
@@ -581,15 +577,15 @@ Antenna Switch Controller
                         self.setGeometry(self.__state[WINDOW][X], self.__state[WINDOW][Y], self.__state[WINDOW][W], self.__state[WINDOW][H])
                         self.setFixedSize(self.__state[WINDOW][W], self.__state[WINDOW][H])
                         
-            # Check online state 
-            if self.__statusMessage == 'online':
+            # Update online state
+            # Status bar
+            self.statusmsg.setText(self.__statusMessage)
+            if self.__online:
                 self.statusmon.setText('Connected')
                 self.statusmon.setStyleSheet("QLabel {color: green;font: bold 12px}")
-            elif self.__statusMessage == 'offline':
+            else:
                 self.statusmon.setText('Disconnected')
                 self.statusmon.setStyleSheet("QLabel {color: red;font: bold 12px}")
-            else:
-                self.statusmon.setText(self.__statusMessage)
                 
             # Check for macro execution
             if self.__doMacro != None:
