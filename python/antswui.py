@@ -83,7 +83,7 @@ class AntSwUI(QMainWindow):
             relay_state = self.__state[RELAYS][self.__current_template]
         else:
             relay_state = None
-        self.__api = antcontrol.AntControl(self.__settings[ARDUINO_SETTINGS][NETWORK], relay_state, self.__api_callback)
+        self.__api = antcontrol.AntControl(self.__settings[ARDUINO_SETTINGS][NETWORK], relay_state, self.__api_callback, self.__get_relay_state)
         
         # Create the external command thread
         self.__extCmd = ExtCmdThrd(self.__extCmdCallback)
@@ -107,7 +107,11 @@ class AntSwUI(QMainWindow):
         
         # Returns when application exists
         return self.__qt_app.exec_()
-           
+    
+    def __get_relay_state(self):
+        # Returne current relay state
+        return self.__state[RELAYS][self.__current_template]
+    
     # UI initialisation and window event handlers =====================================================================
     def initUI(self):
         """ Configure the GUI interface """
@@ -581,10 +585,10 @@ Antenna Switch Controller
             if self.__statusMessage == 'online':
                 self.statusmon.setText('Connected')
                 self.statusmon.setStyleSheet("QLabel {color: green;font: bold 12px}")
-            elif self.__statusMessage == 'offline'::
+            elif self.__statusMessage == 'offline':
                 self.statusmon.setText('Disconnected')
                 self.statusmon.setStyleSheet("QLabel {color: red;font: bold 12px}")
-            else
+            else:
                 self.statusmon.setText(self.__statusMessage)
                 
             # Check for macro execution
