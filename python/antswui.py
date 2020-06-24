@@ -675,8 +675,8 @@ Antenna Switch Controller
             if relay_id in macro_data:
                 self.__image_widget.set_relay_state(relay_id, macro_data[relay_id])
                 self.__api.set_relay(relay_id, macro_data[relay_id])
-        # Update the relay data so it reflects the selected macro
-        self.__state[RELAYS][self.__current_template] = copy.deepcopy(macro_data)
+                self.__state[RELAYS][self.__current_template][relay_id] = macro_data[relay_id]
+                sleep(0.3)
         # Adjust button background
         for button_id in range(len(self.__ex_btn_array)):
             if button_id == macro_index:
