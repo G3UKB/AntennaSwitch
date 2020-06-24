@@ -7,6 +7,9 @@
 *  Arduino MEGA
 *  Arduino Ethernet Shield
 *  16 Relay Module                        
+*
+* To debug add print statements and use the serial moniror set to 9600 baud.
+* e.g. Serial.println("Setup");
 */
 
 //////////////////////////////////////////////////////////////////////////
@@ -82,7 +85,6 @@ void setup() {
 
   // Initialise serial port to be used for debug
   Serial.begin(9600);
-  //Serial.println("Setup");
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -109,7 +111,6 @@ int queryPacket() {
   
   int packetSize = Udp.parsePacket();
   if (packetSize) {
-    //Serial.println(packetSize);
     return packetSize;
   }
   else
@@ -122,9 +123,7 @@ int doRead(int packetSize) {
   // Read the packet into packetBufffer
   Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
   // Terminate buffer
-  packetBuffer[packetSize] = '\0';
-  //Serial.println("Command:");
-  //Serial.println(packetBuffer); 
+  packetBuffer[packetSize] = '\0'; 
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -133,8 +132,7 @@ int sendResponse() {
   // Send a reply to the IP address and port that sent us the packet we received
   Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
   Udp.write(ReplyBuffer);
-  Udp.endPacket(); 
-  //Serial.println(ReplyBuffer);   
+  Udp.endPacket();    
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -146,17 +144,13 @@ void execute(char *command) {
   * Relay on    - "[1-16]e"    -  energise relay 1-16
   * Relay off   - "[1-16]d"    -  de-energise relay 1-16
   */ 
-    
   char *p;
   int value = 0;
-  bool valid = false;
   
   // Execute command type
-  //Serial.println(command);
   if (strcmp(command, "ping") == 0) {
     strcpy(ReplyBuffer, "awake");
     sendResponse();
-    valid = true;
   } else {
     // A numeric command
     for(p=command; *p; p++) {
@@ -165,19 +159,11 @@ void execute(char *command) {
         value = value*10 + *p - '0';
      } else if(*p == 'e') {
         energise_relay(value);
-        valid = true;
      } else if(*p == 'd') {
         de_energise_relay(value);
-        valid = true;
      }
     }
   }
-  if (!valid) {
-    // Invalid command
-    Serial.println("failure:Invalid command:");
-    Serial.println(command);
-  }
-  //Serial.println("End");
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -203,15 +189,11 @@ void reset_relays() {
 
 //////////////////////////////////////////////////////////////////////////
 void energise_relay(int relay_id) {
-  //Serial.println("Energise:");
-  //Serial.println(relay_id);
   digitalWrite(relay_id + relay_base, LOW);
 }
 
 //////////////////////////////////////////////////////////////////////////
 void de_energise_relay(int relay_id) {
-  //Serial.println("Deenergise:");
-  //Serial.println(relay_id);
   digitalWrite(relay_id + relay_base, HIGH);
 }
   

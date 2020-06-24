@@ -107,6 +107,7 @@ class AntSwUI(QMainWindow):
         """ Run the application """
         
         # Returns when application exists
+        print("Flexi-Switch running...")
         return self.__qt_app.exec_()
     
     def __get_relay_state(self):
@@ -319,6 +320,7 @@ Antenna Switch Controller
             "Quit application?", QMessageBox.Yes | 
             QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
+            print("Flexi-Switch closing...")
             self.quit()
         else:
             event.ignore()
@@ -741,7 +743,7 @@ def main():
     try:
         # The one and only QApplication 
         qt_app = QApplication(sys.argv)
-        # Cretae instance
+        # Create instance
         ant_sw_ui = AntSwUI(qt_app)
         # Run application loop
         sys.exit(ant_sw_ui.run())
