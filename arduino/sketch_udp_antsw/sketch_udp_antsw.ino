@@ -28,6 +28,7 @@ unsigned int localPort = 8888;
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // Buffer to hold incoming packet,
 char  ReplyBuffer[128];                   // The response
 char  StatusBuffer[128];                  // Interim data
+int counter;
 
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
@@ -55,7 +56,6 @@ const int relay_16 = 16;
 
 //////////////////////////////////////////////////////////////////////////
 void setup() {
-  
   // Start Ethernet and UDP:
   Ethernet.begin(mac, ip);
   Udp.begin(localPort);
@@ -82,10 +82,12 @@ void setup() {
 
   // Initialise serial port to be used for debug
   Serial.begin(9600);
+  //Serial.println("Setup");
 }
 
 //////////////////////////////////////////////////////////////////////////
 void loop() {
+  //Serial.println(counter++);
   // Called to execute main code
   // Accept messages from UDP
   int packetSize = queryPacket();
@@ -95,16 +97,21 @@ void loop() {
     doRead(packetSize);   
     // Execute command
     execute(packetBuffer);
+    // Reply
+    strcpy(ReplyBuffer, "ack");
+    sendResponse();
   }
-  delay(10);
+  delay(100);
 }
 
 //////////////////////////////////////////////////////////////////////////
 int queryPacket() {
   
   int packetSize = Udp.parsePacket();
-  if (packetSize)
+  if (packetSize) {
+    //Serial.println(packetSize);
     return packetSize;
+  }
   else
     return 0;
 }
@@ -145,6 +152,7 @@ void execute(char *command) {
   bool valid = false;
   
   // Execute command type
+  //Serial.println(command);
   if (strcmp(command, "ping") == 0) {
     strcpy(ReplyBuffer, "awake");
     sendResponse();
@@ -169,6 +177,7 @@ void execute(char *command) {
     Serial.println("failure:Invalid command:");
     Serial.println(command);
   }
+  //Serial.println("End");
 }
 
 //////////////////////////////////////////////////////////////////////////
